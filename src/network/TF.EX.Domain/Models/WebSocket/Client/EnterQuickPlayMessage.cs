@@ -17,5 +17,11 @@ namespace TF.EX.Domain.Models.WebSocket.Client
 
         [DataMember(Name = "is_wide")]
         public bool IsWide { get; set; }
+
+        /// <summary>
+        /// Players searching on this device: the server seats them all, sharing this device's RoomPeerId
+        /// </summary>
+        [DataMember(Name = "local_players")]
+        public int LocalPlayers { get; set; } = 1;
     }
 }

@@ -5,6 +5,7 @@
 ### Added
 
 - Several players on one PC can play online together: in an online lobby, another controller pressing confirm adds a player for it (needs a ggrs-ffi with several local players and a server that seats them)
+- Quick play: another controller pressing confirm while searching joins the search too (with a server that supports it)
 
 ## [0.21.1] - 2026-10-15
 

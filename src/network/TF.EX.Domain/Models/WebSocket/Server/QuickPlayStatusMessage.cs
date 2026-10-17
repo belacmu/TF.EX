@@ -23,5 +23,11 @@ namespace TF.EX.Domain.Models.WebSocket.Server
 
         [DataMember(Name = "message")]
         public string Message { get; set; }
+
+        /// <summary>
+        /// The players searching on this device, sent back by a server that seats several players per device
+        /// </summary>
+        [DataMember(Name = "local_players")]
+        public int? LocalPlayers { get; set; }
     }
 }

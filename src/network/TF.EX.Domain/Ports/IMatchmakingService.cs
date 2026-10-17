@@ -66,6 +66,10 @@ namespace TF.EX.Domain.Ports
         Task AddLocalPlayer();
 
         Task RemoveLocalPlayer(int seat);
+
+        Task SetQuickPlayLocalPlayers(int count);
+
+        bool SupportsQuickPlayLocalPlayers();
         void ReconcileRollcallIfPending();
         void RunOnGameThread(Action action);
         void DrainGameThreadActions();

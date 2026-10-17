@@ -435,7 +435,11 @@ namespace TF.EX.Patchs.Scene
             var inputService = ServiceCollections.ResolveInputService();
             var logger = ServiceCollections.ResolveLogger();
 
-            if (matchmakingService.GetOwnLobby().IsEmpty)
+            if (matchmakingService.GetOwnLobby().IsEmpty && matchmakingService.IsSearchingQuickPlay() && matchmakingService.SupportsQuickPlayLocalPlayers())
+            {
+                inputService.UpdateQuickPlaySearch();
+            }
+            else if (matchmakingService.GetOwnLobby().IsEmpty)
             {
                 inputService.ObserveLocalDevice();
             }
@@ -821,6 +825,7 @@ namespace TF.EX.Patchs.Scene
                 if (matchmakingService.IsSearchingQuickPlay())
                 {
                     Task.Run(matchmakingService.ExitQuickPlay);
+                    ServiceCollections.ResolveInputService().PrepareLocalPlayers();
                 }
 
                 return;
@@ -828,6 +833,7 @@ namespace TF.EX.Patchs.Scene
 
             self.BackState = Domain.Models.MenuState.NetplaySelect.ToTFModel();
             self.AddLoader("SEARCHING FOR OPPONENTS...");
+            ServiceCollections.ResolveInputService().PrepareLocalPlayers();
             self.ButtonGuideB.SetDetails(MenuButtonGuide.ButtonModes.Back, "CANCEL");
 
             Task.Run(() => matchmakingService.EnterQuickPlay(
