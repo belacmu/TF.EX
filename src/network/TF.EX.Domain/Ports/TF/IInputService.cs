@@ -18,6 +18,8 @@ namespace TF.EX.Domain.Ports.TF
         bool IsLocalInput(PlayerInput input);
         bool IsSpareInput(PlayerInput input);
         void UpdateLocalPlayers();
+        void PrepareLocalPlayers();
+        void UpdateQuickPlaySearch();
         void PlaceLocalPlayersInputs();
         void ResetCurrentInput();
         void EnsureRemoteController(int playerCount);

@@ -59,6 +59,8 @@ namespace TF.EX.Domain.Services
         private int searchingWideCount;
         private bool isQuickPlayWide;
         private bool isQuickPlayQueued;
+        private int quickPlayLocalPlayers = 1;
+        private bool quickPlayTakesLocalPlayers;
         private int? mainSeat;
 
         private static readonly Microsoft.Xna.Framework.Color EnabledTint = new(205, 245, 205);
@@ -315,7 +317,8 @@ namespace TF.EX.Domain.Services
                 EnterQuickPlay = new EnterQuickPlay
                 {
                     Name = NetplayPreferences.Name,
-                    IsWide = isQuickPlayWide
+                    IsWide = isQuickPlayWide,
+                    LocalPlayers = quickPlayLocalPlayers
                 }
             };
 
@@ -689,6 +692,7 @@ namespace TF.EX.Domain.Services
 
                 searchingStandardCount = response.QuickPlayStatus.SearchingStandard;
                 searchingWideCount = response.QuickPlayStatus.SearchingWide;
+                quickPlayTakesLocalPlayers = response.QuickPlayStatus.LocalPlayers != null;
 
                 if (response.QuickPlayStatus.Queued)
                 {
@@ -1825,6 +1829,8 @@ namespace TF.EX.Domain.Services
             onQuickPlayFailed = onFail == null ? null : message => RunOnGameThread(() => onFail(message));
             searchingStandardCount = 0;
             searchingWideCount = 0;
+            quickPlayLocalPlayers = 1;
+            quickPlayTakesLocalPlayers = false;
 
             if (!EnsureConnection())
             {
@@ -1839,8 +1845,19 @@ namespace TF.EX.Domain.Services
             await SendEnterQuickPlay();
         }
 
+        public async Task SetQuickPlayLocalPlayers(int count)
+        {
+            quickPlayLocalPlayers = count;
+
+            if (isQuickPlayQueued && IsConnectedToServer())
+            {
+                await SendEnterQuickPlay();
+            }
+        }
+
         public async Task ExitQuickPlay()
         {
+            quickPlayLocalPlayers = 1;
             onQuickPlayQueued = null;
             onQuickPlayMatched = null;
             onQuickPlayFailed = null;
@@ -1898,6 +1915,11 @@ namespace TF.EX.Domain.Services
             }
 
             return mainSeat.Value;
+        }
+
+        public bool SupportsQuickPlayLocalPlayers()
+        {
+            return quickPlayTakesLocalPlayers;
         }
 
         /// <summary>

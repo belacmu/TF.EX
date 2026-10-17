@@ -1,4 +1,5 @@
 ﻿using TF.EX.Domain.Context;
+using TF.EX.Domain.CustomComponent;
 using TF.EX.Domain.Extensions;
 using TF.EX.Domain.Models;
 using TF.EX.Domain.Ports.TF;
@@ -291,7 +292,7 @@ namespace TF.EX.Domain.Services.TF
                 Task.Run(() => matchmakingService.RemoveLocalPlayer(seat));
             }
 
-            if (DateTime.UtcNow - _joiningSince > TimeSpan.FromSeconds(LOCAL_PLAYER_JOIN_TIMEOUT_SECONDS))
+            if (lobby.IsQuickPlay || DateTime.UtcNow - _joiningSince > TimeSpan.FromSeconds(LOCAL_PLAYER_JOIN_TIMEOUT_SECONDS))
             {
                 _joiningInputs.Clear();
             }
@@ -323,6 +324,43 @@ namespace TF.EX.Domain.Services.TF
             Sounds.ui_click.Play();
 
             Task.Run(matchmakingService.AddLocalPlayer);
+        }
+
+        /// <summary>
+        /// Quick play search starts: the devices the local player doesn't use can join the search
+        /// </summary>
+        public void PrepareLocalPlayers()
+        {
+            RefreshSpareInputs(_context.GetLocalInput() ?? TFGame.PlayerInputs.FirstOrDefault(input => input != null));
+            _localPlayersInputs.Clear();
+            _joiningInputs.Clear();
+        }
+
+        /// <summary>
+        /// Quick play search: a spare device pressing confirm searches along, the server then seats it in the match it finds
+        /// </summary>
+        public void UpdateQuickPlaySearch()
+        {
+            var matchmakingService = ServiceCollections.ResolveMatchmakingService();
+            if (!matchmakingService.IsSearchingQuickPlay() || !matchmakingService.SupportsQuickPlayLocalPlayers() || !Externals.GGRSFFI.SupportsLocalPlayers())
+            {
+                return;
+            }
+
+            var joining = _spareInputs.FirstOrDefault(input => !_joiningInputs.Contains(input) && input.Attached && input.MenuConfirm);
+
+            if (joining == null)
+            {
+                return;
+            }
+
+            _joiningInputs.Add(joining);
+            _joiningSince = DateTime.UtcNow;
+            Sounds.ui_click.Play();
+
+            var localPlayers = _joiningInputs.Count + 1;
+            Notification.Create(TFGame.Instance.Scene, $"{localPlayers} PLAYERS ON THIS DEVICE", 10, 200);
+            Task.Run(() => matchmakingService.SetQuickPlayLocalPlayers(localPlayers));
         }
 
         private void RefreshSpareInputs(PlayerInput localInput)
@@ -515,9 +553,13 @@ namespace TF.EX.Domain.Services.TF
             _context.SetLocalInput(localInput);
             var localMenuInput = MenuInput.MenuInputs.FirstOrDefault(input => input != null);
 
+            //Devices that joined a quick play search keep their place
+            var joining = _joiningInputs.ToList();
+
             RefreshSpareInputs(localInput);
             _localPlayersInputs.Clear();
             _joiningInputs.Clear();
+            _joiningInputs.AddRange(joining.Select(input => _spareInputs.FirstOrDefault(spare => IsSameDevice(spare, input))).Where(input => input != null));
 
             for (int i = 0; i < playerCount; i++)
             {
