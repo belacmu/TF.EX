@@ -18,6 +18,8 @@ namespace TF.EX.Domain.Services.TF
         private static readonly HashSet<int> _orphanSeats = [];
         private static DateTime _joiningSince;
         private const int LOCAL_PLAYER_JOIN_TIMEOUT_SECONDS = 5;
+        private const int DEVICE_SCAN_INTERVAL_FRAMES = 30;
+        private static int _deviceScanFrames;
 
         public InputService(IGameContext context)
         {
@@ -307,6 +309,8 @@ namespace TF.EX.Domain.Services.TF
                 return;
             }
 
+            ScanNewDevices(_context.GetLocalInput());
+
             var joining = _spareInputs.FirstOrDefault(input => !_localPlayersInputs.ContainsValue(input) && input.Attached && input.MenuConfirm);
 
             //A device mirrored by another (Steam Input, DS4Windows) presses along with the local player's: not a new player
@@ -323,6 +327,49 @@ namespace TF.EX.Domain.Services.TF
             Sounds.ui_click.Play();
 
             Task.Run(matchmakingService.AddLocalPlayer);
+        }
+
+        /// <summary>
+        /// A device attached after the lobby opened (a gamepad plugged in, Joy-Cons split apart) becomes a spare too. The lobby's
+        /// slots aren't touched: the attached devices are listed by the game's own AssignInputs into a scratch array, and the slots
+        /// and menu inputs are put back as they were.
+        /// </summary>
+        private void ScanNewDevices(PlayerInput localInput)
+        {
+            if (localInput == null || ++_deviceScanFrames < DEVICE_SCAN_INTERVAL_FRAMES)
+            {
+                return;
+            }
+
+            _deviceScanFrames = 0;
+
+            var playerInputs = TFGame.PlayerInputs;
+            var savedPlayers = (PlayerInput[])playerInputs.Clone();
+            var menuInputs = MenuInput.MenuInputs;
+            var savedMenus = (PlayerInput[])menuInputs.Clone();
+
+            try
+            {
+                TFGame.PlayerInputs = new PlayerInput[playerInputs.Length];
+                PlayerInput.AssignInputs();
+
+                foreach (var input in TFGame.PlayerInputs.Where(input => input != null && input is not FakeController))
+                {
+                    if (!IsSameDevice(input, localInput)
+                        && !_spareInputs.Any(spare => IsSameDevice(spare, input))
+                        && !_localPlayersInputs.Values.Any(local => IsSameDevice(local, input)))
+                    {
+                        _spareInputs.Add(input);
+                    }
+                }
+            }
+            finally
+            {
+                Array.Copy(savedPlayers, playerInputs, savedPlayers.Length);
+                TFGame.PlayerInputs = playerInputs;
+                Array.Copy(savedMenus, menuInputs, savedMenus.Length);
+                MenuInput.MenuInputs = menuInputs;
+            }
         }
 
         private void RefreshSpareInputs(PlayerInput localInput)
