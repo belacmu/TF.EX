@@ -4,7 +4,7 @@
 
 ### Added
 
-- Several players on one PC can play online together: in an online lobby, another controller pressing confirm adds a player for it (needs a ggrs-ffi with several local players and a server that seats them)
+- Several players on one PC can play online together: in an online lobby, another controller pressing confirm adds a player for it (needs a ggrs-ffi with several local players and a server that seats them); a controller connected or Joy-Cons split apart while the lobby is open can join too
 
 ## [0.27.0] - 2026-10-26
 
