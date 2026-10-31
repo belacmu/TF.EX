@@ -1,6 +1,7 @@
 using FortRise;
 using Microsoft.Extensions.Logging;
 using TF.EX.Domain.Extensions;
+using TF.EX.Domain.Models.WebSocket;
 using TF.EX.Domain.Ports;
 using TowerFall;
 
@@ -40,6 +41,36 @@ namespace TF.EX.Domain.Interop
             return !string.IsNullOrEmpty(id) && spawners.ContainsKey(id) && GameModeRegistry.RegistryVersusGameModes.TryGetValue(id, out var entry)
                 ? entry
                 : null;
+        }
+
+        /// <summary>
+        /// The mod that owns a mode ("ModName" of "ModName/ModeName"), null for a built-in mode.
+        /// </summary>
+        public static string Owner(string id)
+        {
+            var slash = string.IsNullOrEmpty(id) ? -1 : id.IndexOf('/');
+
+            return slash > 0 ? id.Substring(0, slash) : null;
+        }
+
+        /// <summary>
+        /// The lobby's mod mode this player can't play, as its mod and the host's version, null when it can: the mod isn't installed, or
+        /// is another version (unlike a variant's, a mode's rules change between versions).
+        /// </summary>
+        public static string MissingMode(Lobby lobby)
+        {
+            var owner = Owner(lobby.GameData.CustomMode);
+
+            if (owner == null)
+            {
+                return null;
+            }
+
+            var hostMod = lobby.Mods.FirstOrDefault(mod => mod.Name == owner);
+            var host = hostMod?.Data != null && hostMod.Data.TryGetValue(CustomMod.VersionKey, out var version) ? version : "";
+            var installed = Resolve(lobby.GameData.CustomMode) != null ? ServiceCollections.ResolveModCollections()?.GetVersion(owner) : null;
+
+            return installed != null && (host == "" || installed == host) ? null : $"{owner} {host}".Trim().ToUpperInvariant();
         }
 
         /// <summary>

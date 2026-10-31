@@ -1510,6 +1510,11 @@ namespace TF.EX.Domain.Services
 
             var missing = variants.MissingVariants(lobby.GameData.Variants);
 
+            if (Interop.NetplayVersusModes.MissingMode(lobby) is string missingMode)
+            {
+                missing.Insert(0, missingMode);
+            }
+
             if (missing.Count == 0)
             {
                 return false;
