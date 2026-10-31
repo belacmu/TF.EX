@@ -499,6 +499,10 @@ namespace TF.EX.Domain.Services
 
                 level.UpdateEntityLists();
             }
+            else if (Interop.NetplayVersusModes.TrySpawnRoundPlayers(level?.Session?.RoundLogic, withVersusStart: false))
+            {
+                level.UpdateEntityLists();
+            }
             else
             {
                 _logger.LogDebug("[Replay] No round player spawner at playback start");
