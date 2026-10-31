@@ -74,6 +74,14 @@ namespace TF.EX.Domain.Interop
         }
 
         /// <summary>
+        /// The fewest players a team lobby takes: its mod mode's own (TowerBall: one against one), else TF.EX's.
+        /// </summary>
+        public static int TeamModeMinPlayers(Lobby lobby, int builtInMin)
+        {
+            return Resolve(lobby.GameData.CustomMode)?.VersusGameMode.GetMinimumTeamPlayers(TowerFall.MainMenu.VersusMatchSettings) ?? builtInMin;
+        }
+
+        /// <summary>
         /// The mod mode of the own lobby, null when it plays a built-in mode.
         /// </summary>
         public static IVersusGameModeEntry Selected()
