@@ -32,6 +32,27 @@ namespace TF.State.Core.Api
         }
 
         /// <summary>
+        /// Put a mod's entity type in the rollback state (an entity of its own, or its own arrow's fields).
+        ///
+        /// <para>On a save, every entity of that type in the level gives its bytes. On a load, each saved one is found again by its depth
+        /// and given its bytes back; with <c>create</c>, the mod's own entities are also made again when gone, and removed when they
+        /// weren't in the state. Without it (an arrow type: TF.State already makes arrows again), only the bytes are given back.</para>
+        /// <para>As for the variants' events: deterministic bytes, nothing from outside the simulation.</para>
+        /// </summary>
+        public static void RegisterEntityStateEvents(Mod module, Type entityType, Func<Monocle.Entity, byte[]> OnGetState, Action<Monocle.Entity, byte[]> OnLoadState, Func<Monocle.Entity> create)
+        {
+            ServiceCollections.ResolveAPIManager().RegisterEntityStateEvents(module.Meta.Name, entityType, OnGetState, OnLoadState, create);
+        }
+
+        /// <summary>
+        /// Take a mod's entity type out of the rollback state.
+        /// </summary>
+        public static void UnregisterEntityStateEvents(Mod module, Type entityType)
+        {
+            ServiceCollections.ResolveAPIManager().UnregisterEntityStateEvents(module.Meta.Name, entityType);
+        }
+
+        /// <summary>
         /// True while the rollback system is replaying frames it has already run once.
         ///
         /// <para>Untracked cosmetics must not advance during a replay: their Update would run several times
