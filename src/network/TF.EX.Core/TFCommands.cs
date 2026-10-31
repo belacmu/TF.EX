@@ -555,7 +555,7 @@ namespace TF.EX.Core
             WarnOnUnknownVariants(matchSettings.Variants, variants);
             matchSettings.Variants.ApplyVariants(variants);
 
-            if (matchSettings.LevelSystem.GetType() == typeof(VersusLevelSystem))   // (a mod's own level system picks its own levels)
+            if (modEntry == null)   // (a mod's mode: its levels from the tower's level system, the mode's own when it brings one)
             {
                 TF.EX.Domain.Interop.StateApi.Current.GenerateVersusLevels(matchSettings, map, startLevel);
             }
