@@ -37,6 +37,15 @@ namespace TF.EX.API
         }
 
         /// <summary>
+        /// The mod mode played online (its FortRise id, "ModName/ModeName"), empty when it isn't one. Online the match's
+        /// MatchSettings.Mode is the Netplay mode: a mode's own hooks check this too.
+        /// </summary>
+        public static string NetplayVersusMode()
+        {
+            return NetplayVersusModes.Selected()?.Name ?? "";
+        }
+
+        /// <summary>
         /// The mode is no longer offered online.
         /// </summary>
         public static void UnregisterNetplayVersusMode(Mod module, string name)
