@@ -73,9 +73,11 @@ namespace TF.EX.Domain.CustomComponent
             ownLobby.GameData.Mode = (int)mode;
             ownLobby.GameData.CustomMode = option.CustomMode;
 
-            if (mode == TowerFall.Modes.TeamDeathmatch && ownLobby.MaxPlayers < TEAM_MODE_MIN_PLAYERS)
+            var teamMin = NetplayVersusModes.TeamModeMinPlayers(ownLobby, TEAM_MODE_MIN_PLAYERS);
+
+            if (mode == TowerFall.Modes.TeamDeathmatch && ownLobby.MaxPlayers < teamMin)
             {
-                ownLobby.MaxPlayers = TEAM_MODE_MIN_PLAYERS;
+                ownLobby.MaxPlayers = teamMin;
             }
 
             base.OnConfirm();
