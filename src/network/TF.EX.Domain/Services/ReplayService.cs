@@ -66,6 +66,7 @@ namespace TF.EX.Domain.Services
                 mode,
                 gameData?.MatchLength ?? 2,
                 EffectiveVariants());
+            ReplayApi.Current.SetCustomMode(gameData?.CustomMode ?? "");
         }
 
         private static string[] EffectiveVariants()
