@@ -82,10 +82,15 @@ namespace TF.EX.Domain.Interop
         }
 
         /// <summary>
-        /// The mod mode of the own lobby, null when it plays a built-in mode.
+        /// The mod mode of the own lobby (a replay's when one plays), null when it plays a built-in mode.
         /// </summary>
         public static IVersusGameModeEntry Selected()
         {
+            if (ServiceCollections.ResolveNetplayManager().IsReplayMode())
+            {
+                return Resolve(ReplayApi.Current?.GetLoadedReplayCustomMode());
+            }
+
             var lobby = ServiceCollections.ResolveMatchmakingService().GetOwnLobby();
 
             return lobby.IsEmpty ? null : Resolve(lobby.GameData.CustomMode);
