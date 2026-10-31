@@ -66,15 +66,15 @@ namespace TF.State.Domain.Services
             return entityStateEvents.Values.OrderBy(events => events.Key, StringComparer.Ordinal);
         }
 
-        public void RegisterEntityStateEvents(string modName, Type entityType, Func<Monocle.Entity, byte[]> onSaveState, Action<Monocle.Entity, byte[]> onLoadState, Func<Monocle.Entity> create)
+        public void RegisterEntityStateEvents(string modName, string name, Func<Monocle.Entity, bool> owns, Func<Monocle.Entity, byte[]> onSaveState, Action<Monocle.Entity, byte[]> onLoadState, Func<Monocle.Entity> create)
         {
-            var id = $"{modName}-{entityType.FullName}";
-            entityStateEvents.TryAdd(id, new EntityStateEvents(id, entityType, onSaveState, onLoadState, create));
+            var id = $"{modName}-{name}";
+            entityStateEvents.TryAdd(id, new EntityStateEvents(id, owns, onSaveState, onLoadState, create));
         }
 
-        public void UnregisterEntityStateEvents(string modName, Type entityType)
+        public void UnregisterEntityStateEvents(string modName, string name)
         {
-            entityStateEvents.TryRemove($"{modName}-{entityType.FullName}", out _);
+            entityStateEvents.TryRemove($"{modName}-{name}", out _);
         }
 
         private class ByteStateEvents(string variantId, Func<byte[]> onSave, Action<byte[]> onLoad) : IStateEvents
