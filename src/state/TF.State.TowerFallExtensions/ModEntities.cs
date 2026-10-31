@@ -6,7 +6,7 @@ using TowerFall;
 namespace TF.State.TowerFallExtensions
 {
     /// <summary>
-    /// Mods' entity types in the rollback state (ModExports.RegisterEntityStateEvents), carried in the mods' data: one entry per type,
+    /// Mods' entities in the rollback state (ModExports.RegisterEntityStateEvents), carried in the mods' data: one entry per type,
     /// each entity as its depth and its bytes.
     /// </summary>
     public static class ModEntitiesExtensions
@@ -17,7 +17,7 @@ namespace TF.State.TowerFallExtensions
         {
             foreach (var events in ServiceCollections.ResolveAPIManager().GetEntityStateEvents())
             {
-                var entries = LiveEntities(level, events.EntityType)
+                var entries = LiveEntities(level, events.Owns)
                     .Select(entity => $"{BitConverter.DoubleToInt64Bits(ActualDepth(entity))}:{Convert.ToBase64String(events.OnSaveState(entity) ?? [])}");
 
                 gameState.AdditionnalData[KeyPrefix + events.Key] = string.Join(";", entries);
@@ -33,7 +33,7 @@ namespace TF.State.TowerFallExtensions
                     continue;
                 }
 
-                var live = LiveEntities(level, events.EntityType);
+                var live = LiveEntities(level, events.Owns);
 
                 foreach (var entry in saved.Split(';', StringSplitOptions.RemoveEmptyEntries))
                 {
@@ -66,13 +66,13 @@ namespace TF.State.TowerFallExtensions
             }
         }
 
-        private static List<Monocle.Entity> LiveEntities(Level level, Type entityType)
+        private static List<Monocle.Entity> LiveEntities(Level level, Func<Monocle.Entity, bool> owns)
         {
             var layer = level.GetGameplayLayer();
             var toAdd = DynamicData.For(layer).Get<List<Monocle.Entity>>("toAdd") ?? [];
 
             return layer.Entities.Concat(toAdd)
-                .Where(entity => entityType.IsInstanceOfType(entity) && !entity.MarkedForRemoval)
+                .Where(entity => owns(entity) && !entity.MarkedForRemoval)
                 .Distinct()
                 .OrderBy(ActualDepth)
                 .ToList();

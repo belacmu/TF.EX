@@ -32,24 +32,25 @@ namespace TF.State.Core.Api
         }
 
         /// <summary>
-        /// Put a mod's entity type in the rollback state (an entity of its own, or its own arrow's fields).
+        /// Put a mod's entities in the rollback state (entities of its own, or its own arrow's fields), the ones <c>owns</c> says are
+        /// its (<c>entity => entity is MyEntity</c>), under <c>name</c>.
         ///
-        /// <para>On a save, every entity of that type in the level gives its bytes. On a load, each saved one is found again by its depth
+        /// <para>On a save, every such entity in the level gives its bytes. On a load, each saved one is found again by its depth
         /// and given its bytes back; with <c>create</c>, the mod's own entities are also made again when gone, and removed when they
         /// weren't in the state. Without it (an arrow type: TF.State already makes arrows again), only the bytes are given back.</para>
         /// <para>As for the variants' events: deterministic bytes, nothing from outside the simulation.</para>
         /// </summary>
-        public static void RegisterEntityStateEvents(Mod module, Type entityType, Func<Monocle.Entity, byte[]> OnGetState, Action<Monocle.Entity, byte[]> OnLoadState, Func<Monocle.Entity> create)
+        public static void RegisterEntityStateEvents(Mod module, string name, Func<Monocle.Entity, bool> owns, Func<Monocle.Entity, byte[]> OnGetState, Action<Monocle.Entity, byte[]> OnLoadState, Func<Monocle.Entity> create)
         {
-            ServiceCollections.ResolveAPIManager().RegisterEntityStateEvents(module.Meta.Name, entityType, OnGetState, OnLoadState, create);
+            ServiceCollections.ResolveAPIManager().RegisterEntityStateEvents(module.Meta.Name, name, owns, OnGetState, OnLoadState, create);
         }
 
         /// <summary>
-        /// Take a mod's entity type out of the rollback state.
+        /// Take a mod's entities out of the rollback state.
         /// </summary>
-        public static void UnregisterEntityStateEvents(Mod module, Type entityType)
+        public static void UnregisterEntityStateEvents(Mod module, string name)
         {
-            ServiceCollections.ResolveAPIManager().UnregisterEntityStateEvents(module.Meta.Name, entityType);
+            ServiceCollections.ResolveAPIManager().UnregisterEntityStateEvents(module.Meta.Name, name);
         }
 
         /// <summary>
