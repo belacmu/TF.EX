@@ -18,9 +18,14 @@ namespace TF.State.TowerFallExtensions
             foreach (var events in ServiceCollections.ResolveAPIManager().GetEntityStateEvents())
             {
                 var entries = LiveEntities(level, events.Owns)
-                    .Select(entity => Convert.ToBase64String(WithDepth(ActualDepth(entity), events.OnSaveState(entity) ?? [])));
+                    .Select(entity => Convert.ToBase64String(WithDepth(ActualDepth(entity), events.OnSaveState(entity) ?? [])))
+                    .ToList();
 
-                gameState.AdditionnalData[KeyPrefix + events.Key] = string.Join(";", entries);
+                // none, nothing in the state (as for a player without the mod)
+                if (entries.Count > 0)
+                {
+                    gameState.AdditionnalData[KeyPrefix + events.Key] = string.Join(";", entries);
+                }
             }
         }
 
@@ -28,10 +33,9 @@ namespace TF.State.TowerFallExtensions
         {
             foreach (var events in ServiceCollections.ResolveAPIManager().GetEntityStateEvents())
             {
-                if (!gameState.AdditionnalData.TryGetValue(KeyPrefix + events.Key, out var saved))
-                {
-                    continue;
-                }
+                // absent: none were saved (the mod's own entities made after that frame go)
+                gameState.AdditionnalData.TryGetValue(KeyPrefix + events.Key, out var saved);
+                saved ??= "";
 
                 var live = LiveEntities(level, events.Owns);
 

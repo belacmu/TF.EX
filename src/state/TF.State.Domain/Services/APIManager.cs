@@ -19,7 +19,13 @@ namespace TF.State.Domain.Services
                     continue;
                 }
 
-                state.Add(pair.Key, pair.Value.OnSaveState());
+                // nothing to save, nothing in the state: a mod loaded but not in play (its mode not the one played) leaves the
+                // state as a player without it has it
+                var saved = pair.Value.OnSaveState();
+                if (!string.IsNullOrEmpty(saved))
+                {
+                    state.Add(pair.Key, saved);
+                }
             }
 
             return state;
