@@ -36,6 +36,15 @@ namespace TF.EX.Domain.Interop
             spawners.Remove(id);
         }
 
+        /// <summary>
+        /// The mode brings its own round logic (registered with a spawn callback), else it plays on TF.EX's, as the built-in mode it
+        /// resembles (GameData.Mode), its own rules in its hooks.
+        /// </summary>
+        public static bool HasOwnRoundLogic(IVersusGameModeEntry entry)
+        {
+            return entry != null && spawners.TryGetValue(entry.Name, out var spawn) && spawn != null;
+        }
+
         public static IVersusGameModeEntry Resolve(string id)
         {
             return !string.IsNullOrEmpty(id) && spawners.ContainsKey(id) && GameModeRegistry.RegistryVersusGameModes.TryGetValue(id, out var entry)
@@ -104,7 +113,7 @@ namespace TF.EX.Domain.Interop
         {
             var selected = Selected();
 
-            if (selected == null || roundLogic == null || roundLogic is IRoundPlayerSpawner || !roundLogic.Session.MatchSettings.Mode.IsNetplay())
+            if (!HasOwnRoundLogic(selected) || roundLogic == null || roundLogic is IRoundPlayerSpawner || !roundLogic.Session.MatchSettings.Mode.IsNetplay())
             {
                 return false;
             }

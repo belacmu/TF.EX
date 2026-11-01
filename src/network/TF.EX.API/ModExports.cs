@@ -30,6 +30,8 @@ namespace TF.EX.API
         /// <para>name is the one given to RegisterVersusGameMode. spawnPlayers spawns the players of a round (and sets
         /// RoundLogic.Players), as the mode's OnLevelLoadFinish does offline; online, TF.EX calls it once the session
         /// is established, at the next rounds and when a replay starts.</para>
+        /// <para>A mode without a round logic of its own (one returning the game's, its rules in hooks) passes null: online it
+        /// plays on TF.EX's round logic as the built-in mode it resembles (Last Man Standing, Team Deathmatch for a team mode).</para>
         /// </summary>
         public static void RegisterNetplayVersusMode(Mod module, string name, Action<RoundLogic> spawnPlayers)
         {
