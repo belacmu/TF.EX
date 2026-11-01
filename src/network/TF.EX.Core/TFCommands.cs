@@ -428,7 +428,8 @@ namespace TF.EX.Core
                 case "HH": return TowerFall.Modes.HeadHunters;
                 case "TDM": return TowerFall.Modes.TeamDeathmatch;
                 // a mod's versus mode by its FortRise id ("ModName/ModeName"), as registered
-                default: return FortRise.GameModeRegistry.RegistryVersusGameModes.TryGetValue(arg, out var entry) ? entry.Modes : TowerFall.Modes.LastManStanding;
+                // ("_" for a space: the command's arguments are split on spaces, "MoveOrDie/Move_or_Die")
+                default: return FortRise.GameModeRegistry.RegistryVersusGameModes.TryGetValue(arg.Replace('_', ' '), out var entry) ? entry.Modes : TowerFall.Modes.LastManStanding;
             }
         }
 
