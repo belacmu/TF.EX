@@ -14,7 +14,8 @@ namespace TF.State.Domain.Services
 
             foreach (var pair in stateEvents.OrderBy(pair => pair.Key, StringComparer.Ordinal))
             {
-                if (variants.CustomVariants.TryGetValue(pair.Value.GetVariantId(), out var variant) && !variant.Value)
+                // a variant's state only while the variant is on; a state not bound to a variant (a mod mode's) always
+                if (pair.Value.GetVariantId() is { } variantId && variants.CustomVariants.TryGetValue(variantId, out var variant) && !variant.Value)
                 {
                     continue;
                 }
@@ -56,10 +57,10 @@ namespace TF.State.Domain.Services
                 : stateEvents.Keys.Any(key => key.StartsWith(id + "-", StringComparison.Ordinal));
         }
 
-        public void RegisterStateEvents(string modName, string key, Func<byte[]> onSaveState, Action<byte[]> onLoadState)
+        public void RegisterStateEvents(string modName, string key, Func<byte[]> onSaveState, Action<byte[]> onLoadState, bool isVariant)
         {
             var id = $"{modName}-{key}";
-            stateEvents.TryAdd(id, new ByteStateEvents($"{modName}/{key}", onSaveState, onLoadState));
+            stateEvents.TryAdd(id, new ByteStateEvents(isVariant ? $"{modName}/{key}" : null, onSaveState, onLoadState));
         }
 
         public void UnregisterStateEvents(string modName, string key)

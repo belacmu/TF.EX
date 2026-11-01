@@ -20,7 +20,27 @@ namespace TF.State.Core.Api
         /// </summary>
         public static void RegisterVariantStateEvents(Mod module, string name, Func<byte[]> OnGetState, Action<byte[]> OnLoadState)
         {
-            ServiceCollections.ResolveAPIManager().RegisterStateEvents(module.Meta.Name, name, OnGetState, OnLoadState);
+            ServiceCollections.ResolveAPIManager().RegisterStateEvents(module.Meta.Name, name, OnGetState, OnLoadState, isVariant: true);
+        }
+
+        /// <summary>
+        /// Register custom SaveState/LoadState events for a mod's own state, not a variant's (a mod game mode's rules, under any
+        /// <c>name</c>): saved whenever <c>OnGetState</c> gives bytes. Give none (an empty array) while the state isn't in play, so a
+        /// player with the mod loaded and one without it have the same state.
+        ///
+        /// <para>As for a variant's: deterministic bytes, nothing from outside the simulation.</para>
+        /// </summary>
+        public static void RegisterStateEvents(Mod module, string name, Func<byte[]> OnGetState, Action<byte[]> OnLoadState)
+        {
+            ServiceCollections.ResolveAPIManager().RegisterStateEvents(module.Meta.Name, name, OnGetState, OnLoadState, isVariant: false);
+        }
+
+        /// <summary>
+        /// Stop receiving the events of <see cref="RegisterStateEvents"/>.
+        /// </summary>
+        public static void UnregisterStateEvents(Mod module, string name)
+        {
+            ServiceCollections.ResolveAPIManager().UnregisterStateEvents(module.Meta.Name, name);
         }
 
         /// <summary>
