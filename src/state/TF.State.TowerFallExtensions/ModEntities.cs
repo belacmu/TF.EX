@@ -6,8 +6,8 @@ using TowerFall;
 namespace TF.State.TowerFallExtensions
 {
     /// <summary>
-    /// Mods' entities in the rollback state (ModExports.RegisterEntityStateEvents), carried in the mods' data: one entry per type,
-    /// each entity as its depth and its bytes.
+    /// Mods' entities in the rollback state (ModExports.RegisterEntityStateEvents), carried in the mods' data: one entry per mod's
+    /// registration, each entity as one base64 blob: its depth (8 bytes, little-endian bits) then its own bytes.
     /// </summary>
     public static class ModEntitiesExtensions
     {
@@ -18,7 +18,7 @@ namespace TF.State.TowerFallExtensions
             foreach (var events in ServiceCollections.ResolveAPIManager().GetEntityStateEvents())
             {
                 var entries = LiveEntities(level, events.Owns)
-                    .Select(entity => $"{BitConverter.DoubleToInt64Bits(ActualDepth(entity))}:{Convert.ToBase64String(events.OnSaveState(entity) ?? [])}");
+                    .Select(entity => Convert.ToBase64String(WithDepth(ActualDepth(entity), events.OnSaveState(entity) ?? [])));
 
                 gameState.AdditionnalData[KeyPrefix + events.Key] = string.Join(";", entries);
             }
@@ -37,9 +37,9 @@ namespace TF.State.TowerFallExtensions
 
                 foreach (var entry in saved.Split(';', StringSplitOptions.RemoveEmptyEntries))
                 {
-                    var separator = entry.IndexOf(':');
-                    var actualDepth = BitConverter.Int64BitsToDouble(long.Parse(entry.Substring(0, separator)));
-                    var bytes = Convert.FromBase64String(entry.Substring(separator + 1));
+                    var blob = Convert.FromBase64String(entry);
+                    var actualDepth = DepthOf(blob);
+                    var bytes = blob.Skip(8).ToArray();
 
                     var entity = live.FirstOrDefault(candidate => ActualDepth(candidate) == actualDepth);
 
@@ -76,6 +76,28 @@ namespace TF.State.TowerFallExtensions
                 .Distinct()
                 .OrderBy(ActualDepth)
                 .ToList();
+        }
+
+        private static byte[] WithDepth(double actualDepth, byte[] bytes)
+        {
+            var bits = BitConverter.DoubleToInt64Bits(actualDepth);
+            var blob = new byte[8 + bytes.Length];
+            for (int i = 0; i < 8; i++)
+            {
+                blob[i] = (byte)(bits >> (i * 8));
+            }
+            Array.Copy(bytes, 0, blob, 8, bytes.Length);
+            return blob;
+        }
+
+        private static double DepthOf(byte[] blob)
+        {
+            long bits = 0;
+            for (int i = 0; i < 8 && i < blob.Length; i++)
+            {
+                bits |= (long)blob[i] << (i * 8);
+            }
+            return BitConverter.Int64BitsToDouble(bits);
         }
 
         private static double ActualDepth(Monocle.Entity entity)
