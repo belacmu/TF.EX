@@ -51,7 +51,9 @@ namespace TF.EX.Core.RoundLogic
 
         public TowerFall.RoundLogic OnCreateRoundLogic(Session session)
         {
-            return NetplayVersusModes.Selected()?.VersusGameMode.OnCreateRoundLogic(session) ?? new NetplayRoundLogic(session);
+            var selected = NetplayVersusModes.Selected();
+
+            return NetplayVersusModes.HasOwnRoundLogic(selected) ? selected.VersusGameMode.OnCreateRoundLogic(session) : new NetplayRoundLogic(session);
         }
 
         public void OnStartGame(Session session)
