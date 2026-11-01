@@ -7,7 +7,7 @@
 
         bool HasStateEvents(string id);
 
-        void RegisterStateEvents(string modName, string key, System.Func<byte[]> onSaveState, System.Action<byte[]> onLoadState);
+        void RegisterStateEvents(string modName, string key, System.Func<byte[]> onSaveState, System.Action<byte[]> onLoadState, bool isVariant);
         void UnregisterStateEvents(string modName, string key);
 
         IEnumerable<EntityStateEvents> GetEntityStateEvents();
@@ -22,6 +22,7 @@
 
     public interface IStateEvents
     {
+        /// <summary>The variant this state belongs to (saved only while it is on), or null.</summary>
         string GetVariantId();
         string OnSaveState();
         void OnLoadState(string toLoad);
