@@ -19,7 +19,7 @@ namespace TF.State.Patchs.RoundLogic
                 return true;
             }
 
-            Vector2[] array = new Vector2[4];
+            Vector2[] array = new Vector2[TowerFall.TFGame.Players.Length];
             List<Vector2> xMLPositions = __instance.Session.CurrentLevel.GetXMLPositions("PlayerSpawn");
 
             if (xMLPositions.Count < TowerFall.TFGame.PlayerAmount) //Team-only levels
@@ -58,7 +58,7 @@ namespace TF.State.Patchs.RoundLogic
             {
                 int highestScore = __instance.Session.GetHighestScore();
                 num = 0;
-                for (int i = 0; i < 4; i++)
+                for (int i = 0; i < TowerFall.TFGame.Players.Length; i++)
                 {
                     if (TowerFall.TFGame.Players[i] && __instance.Session.Scores[i] == highestScore)
                     {
@@ -69,7 +69,7 @@ namespace TF.State.Patchs.RoundLogic
 
             int num2 = 0;
             var players = new List<TowerFall.Player>();
-            for (int j = 0; j < 4; j++)
+            for (int j = 0; j < TowerFall.TFGame.Players.Length; j++)
             {
                 if (!__instance.Session.ShouldSpawn(j))
                 {
@@ -171,7 +171,7 @@ namespace TF.State.Patchs.RoundLogic
         private static int CountTeam(TowerFall.RoundLogic self, TowerFall.Allegiance allegiance)
         {
             var count = 0;
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < TowerFall.TFGame.Players.Length; i++)
             {
                 if (self.Session.ShouldSpawn(i) && self.Session.MatchSettings.Teams[i] == allegiance)
                 {
@@ -227,7 +227,7 @@ namespace TF.State.Patchs.RoundLogic
         private static void SpawnTeam(TowerFall.RoundLogic self, TowerFall.Allegiance allegiance, List<Vector2> spawns)
         {
             var index = 0;
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < TowerFall.TFGame.Players.Length; i++)
             {
                 if (!self.Session.ShouldSpawn(i) || self.Session.MatchSettings.Teams[i] != allegiance)
                 {

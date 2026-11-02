@@ -16,6 +16,8 @@ namespace TF.EX.Domain.Models
 
         public const int MAX_SEATS = 8;
 
+        public const int STANDARD_MAX_PLAYERS = 4; //A lobby's size without WiderSet's wide mode (wide: MAX_SEATS)
+
         public const int MAX_LOCAL_PLAYERS = 3;
 
         public static readonly IEnumerable<string> NETPLAY_SAFE_MAP =  //Not all map are supported in netplay right now... //TODO: it actually is, remove this next time...One day lol
