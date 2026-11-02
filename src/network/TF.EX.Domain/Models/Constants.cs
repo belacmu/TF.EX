@@ -16,7 +16,7 @@ namespace TF.EX.Domain.Models
 
         public const int MAX_SEATS = 8;
 
-        public const int STANDARD_MAX_PLAYERS = 4; //A lobby's size without WiderSet's wide mode (wide: MAX_SEATS)
+        public const int STANDARD_MAX_PLAYERS = 4; //A standard lobby's size (a wide one: the game's seats, TFGame.Players.Length)
 
         public const int MAX_LOCAL_PLAYERS = 3;
 

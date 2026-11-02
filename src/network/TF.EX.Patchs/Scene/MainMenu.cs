@@ -2049,6 +2049,7 @@ namespace TF.EX.Patchs.Scene
                 Data = new Dictionary<string, string>
                 {
                     { "IsWide", widerSetModApi.IsWide.ToString() },
+                    { "Seats", TFGame.Players.Length.ToString() }, //The game's seats: a wide lobby's most players (the server's cap)
                     { Domain.Models.WebSocket.CustomMod.VersionKey, ServiceCollections.ResolveModCollections()?.GetVersion(WiderSetModApiData.Name) ?? "" }
                 }
             });

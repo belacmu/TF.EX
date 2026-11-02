@@ -6,7 +6,7 @@ namespace TF.EX.Domain.CustomComponent
 {
     public class LobbyVersusPlayerCountButton : LobbyBorderButton
     {
-        public static int MAX_PLAYERS => ServiceCollections.ResolveWiderSetModApi()?.IsWide == true ? Models.Constants.MAX_SEATS : Models.Constants.STANDARD_MAX_PLAYERS;
+        public static int MAX_PLAYERS => ServiceCollections.ResolveWiderSetModApi()?.IsWide == true ? TFGame.Players.Length : Models.Constants.STANDARD_MAX_PLAYERS;
         private const int DEFAULT_PLAYERS = 2;
 
         private int MinPlayers => new[]
