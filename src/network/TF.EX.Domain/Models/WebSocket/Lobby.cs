@@ -1,4 +1,5 @@
 ﻿using MessagePack;
+using TF.EX.Domain.Extensions;
 using TowerFall;
 
 namespace TF.EX.Domain.Models.WebSocket
@@ -78,24 +79,11 @@ namespace TF.EX.Domain.Models.WebSocket
         public int? SeriesInputDelay => IsSeriesLobby ? Players.FirstOrDefault(player => player.IsHost)?.InputDelay : null;
 
         [IgnoreMember]
-        public int TickRate => TickRateOf(SessionPlayers);
-
-        [IgnoreMember]
-        public int? FixedTickRate => Players.Select(player => player.GameLogicSpeedMode.FixedTickRate()).FirstOrDefault(rate => rate != null);
+        public int TickRate => SessionPlayers.Any(player => player.GameLogicSpeedMode == GameLogicSpeedMode.Hz60) ? Constants.VANILLA_FPS : Constants.NETPLAY_FPS;
 
         public bool Accepts(GameLogicSpeedMode mode)
         {
-            return mode.FixedTickRate() is not int rate || FixedTickRate is not int fixedRate || rate == fixedRate;
-        }
-
-        public int TickRateWith(GameLogicSpeedMode mode)
-        {
-            return mode == GameLogicSpeedMode.Hz60 ? Constants.VANILLA_FPS : TickRate;
-        }
-
-        public static int TickRateOf(IEnumerable<Player> players)
-        {
-            return players.Any(player => player.GameLogicSpeedMode == GameLogicSpeedMode.Hz60) ? Constants.VANILLA_FPS : Constants.NETPLAY_FPS;
+            return mode.FixedTickRate() is not int rate || Players.All(player => player.GameLogicSpeedMode.FixedTickRate() is not int fixedRate || fixedRate == rate);
         }
 
         [IgnoreMember]
@@ -244,7 +232,7 @@ namespace TF.EX.Domain.Models.WebSocket
 
         public int LocalIndex { get; set; } = 0;
 
-        public string GameLogicSpeed { get; set; } = "";
+        public string GameLogicSpeed { get; set; }
 
         [IgnoreMember]
         public GameLogicSpeedMode GameLogicSpeedMode => GameLogicSpeed.ToGameLogicSpeedMode();

@@ -160,9 +160,9 @@ namespace TF.EX.Domain.CustomComponent
 
                 Add(liveIndicator);
             }
-            else if (lobby.TickRateWith(NetplayPreferences.GameLogicSpeed) != tickRate)
+            else if (NetplayPreferences.GameLogicSpeed == GameLogicSpeedMode.Hz60 && tickRate != Constants.VANILLA_FPS)
             {
-                liveIndicator = new OutlineText(TFGame.Font, $"JOINING SETS {lobby.TickRateWith(NetplayPreferences.GameLogicSpeed)} HZ")
+                liveIndicator = new OutlineText(TFGame.Font, $"JOINING SETS {Constants.VANILLA_FPS} HZ")
                 {
                     Scale = Vector2.One * 1.3f,
                     Color = Color.Yellow,

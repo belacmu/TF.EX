@@ -4,7 +4,7 @@
 
 ### New
 
-- Game logic speed setting (BEST, 240 HZ, 60 HZ): 60 HZ is lighter for slower devices. A lobby plays at 60 HZ when one of its players chose 60 HZ, at 240 HZ otherwise; 60 HZ and 240 HZ players can't share a lobby, BEST joins any. The lobby browser, the lobby and Quick Play show the speed. Ranked is always 240 HZ
+- Netplay: new GAME LOGIC SPEED option (BEST / 240 HZ / 60 HZ) for slower devices. Ranked stays 240 HZ
 
 ## [0.29.0] - 2026-11-01
 

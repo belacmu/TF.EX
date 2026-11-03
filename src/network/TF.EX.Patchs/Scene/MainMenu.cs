@@ -408,11 +408,7 @@ namespace TF.EX.Patchs.Scene
 
         private static void RenderSearchingCounts(IMatchmakingService matchmakingService)
         {
-            var otherRate = NetplayPreferences.GameLogicSpeed.FixedTickRate() is int ownRate
-                ? ownRate == Domain.Models.Constants.VANILLA_FPS ? Domain.Models.Constants.NETPLAY_FPS : Domain.Models.Constants.VANILLA_FPS
-                : (int?)null;
-            var otherSearching = otherRate is int rate ? matchmakingService.GetSearchingCountAt(rate) : 0;
-            var searching = matchmakingService.GetSearchingCount() - otherSearching;
+            var searching = matchmakingService.GetSearchingCount();
 
             if (searching > 0)
             {
@@ -428,12 +424,6 @@ namespace TF.EX.Patchs.Scene
             {
                 var label = $"{setName}: {setSearching} SEARCHING";
                 Monocle.Draw.OutlineTextJustify(TFGame.Font, label, new Vector2(8f, 8f), Color.Gray, Color.Black, new Vector2(0f, 0f));
-            }
-
-            if (otherSearching > 0)
-            {
-                var label = $"{otherRate} HZ: {otherSearching} SEARCHING";
-                Monocle.Draw.OutlineTextJustify(TFGame.Font, label, new Vector2(8f, setSearching > 0 ? 18f : 8f), Color.Gray, Color.Black, new Vector2(0f, 0f));
             }
         }
 
@@ -1409,11 +1399,6 @@ namespace TF.EX.Patchs.Scene
                 });
         }
 
-        private static string GameLogicSpeedRefusal(Lobby lobby)
-        {
-            return lobby.Accepts(NetplayPreferences.GameLogicSpeed) ? null : $"NEEDS {lobby.FixedTickRate} HZ";
-        }
-
         private static (bool canJoin, string reason) EvaluateLobbyCompatibility(Lobby newLobby)
         {
             var widerSetModApi = ServiceCollections.ResolveWiderSetModApi();
@@ -1445,11 +1430,6 @@ namespace TF.EX.Patchs.Scene
             if (!newLobby.GameData.Variants.All(availableVariants.Contains))
             {
                 return (false, "MISSING CUSTOM VARIANTS");
-            }
-
-            if (GameLogicSpeedRefusal(newLobby) is string speedRefusal)
-            {
-                return (false, speedRefusal);
             }
 
             return (true, "");
@@ -1963,9 +1943,9 @@ namespace TF.EX.Patchs.Scene
                         }
                     }
 
-                    if (newLobby.CanJoin && !newLobby.InGame && !newLobby.IsSeriesInProgress && GameLogicSpeedRefusal(newLobby) is string speedRefusal)
+                    if (newLobby.CanJoin && !newLobby.InGame && !newLobby.IsSeriesInProgress && !newLobby.Accepts(NetplayPreferences.GameLogicSpeed))
                     {
-                        newLobby.CanNotJoinReason = speedRefusal;
+                        newLobby.CanNotJoinReason = $"NEEDS {newLobby.TickRate} HZ";
                         newLobby.CanJoin = false;
                     }
 

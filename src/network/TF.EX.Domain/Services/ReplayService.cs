@@ -68,7 +68,8 @@ namespace TF.EX.Domain.Services
                 CurrentTowerId(),
                 mode,
                 gameData?.MatchLength ?? 2,
-                EffectiveVariants());
+                EffectiveVariants(),
+                ServiceCollections.ResolveNetplayManager().GetSessionFps());
         }
 
         private static string[] EffectiveVariants()

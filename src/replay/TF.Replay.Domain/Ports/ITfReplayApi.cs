@@ -12,7 +12,7 @@ namespace TF.Replay.Domain.Ports
 
         void AddRecordingMod(string name, string[] dataKeys, string[] dataValues);
 
-        void BeginRecording(int towerId, int mode, int versusMatchLength, string[] variants);
+        void BeginRecording(int towerId, int mode, int versusMatchLength, string[] variants, int? tickRate = null);
         void AddRecord(byte[] state, int[] inputs, int frame);
         void RemovePredictedRecords(int frame);
         string Export();

@@ -20,24 +20,6 @@ namespace TF.EX.Domain.Models
         Hz60,
     }
 
-    public static class GameLogicSpeedModeExtensions
-    {
-        public static int? FixedTickRate(this GameLogicSpeedMode mode)
-        {
-            return mode switch
-            {
-                GameLogicSpeedMode.Hz240 => Constants.NETPLAY_FPS,
-                GameLogicSpeedMode.Hz60 => Constants.VANILLA_FPS,
-                _ => null,
-            };
-        }
-
-        public static GameLogicSpeedMode ToGameLogicSpeedMode(this string value)
-        {
-            return Enum.TryParse<GameLogicSpeedMode>(value, out var mode) ? mode : GameLogicSpeedMode.Hz240;
-        }
-    }
-
     public static class NetplayPreferences
     {
         public const int MinInputDelay = 0;

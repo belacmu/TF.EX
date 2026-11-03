@@ -52,11 +52,11 @@ namespace TF.Replay.Domain.Api
             _mods.Add(mod);
         }
 
-        public void BeginRecording(int towerId, int mode, int versusMatchLength, string[] variants)
+        public void BeginRecording(int towerId, int mode, int versusMatchLength, string[] variants, int? tickRate = null)
         {
             _archers.Clear();
             _replayService.BeginRecording(towerId, mode, versusMatchLength,
-                variants ?? Array.Empty<string>(), _mods.ToList());
+                variants ?? Array.Empty<string>(), _mods.ToList(), tickRate);
             _mods.Clear();
         }
 

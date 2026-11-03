@@ -11,7 +11,7 @@ namespace TF.Replay.Domain.Ports
 
         int LastFrame { get; }
 
-        void BeginRecording(int towerId, int mode, int versusMatchLength, IEnumerable<string> variants, IEnumerable<CustomMod> mods);
+        void BeginRecording(int towerId, int mode, int versusMatchLength, IEnumerable<string> variants, IEnumerable<CustomMod> mods, int? tickRate = null);
         void AddRecord(byte[] state, int[] inputs, int frame = -1);
         void RemovePredictedRecords(int frame);
         string Export();

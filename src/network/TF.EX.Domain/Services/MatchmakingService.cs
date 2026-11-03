@@ -61,8 +61,6 @@ namespace TF.EX.Domain.Services
         private Action<string> onQuickPlayFailed;
         private int searchingStandardCount;
         private int searchingWideCount;
-        private int searchingHz60Count;
-        private int searchingHz240Count;
         private bool isSearchWide;
         private bool isQuickPlayQueued;
 
@@ -776,8 +774,6 @@ namespace TF.EX.Domain.Services
 
                 searchingStandardCount = response.QuickPlayStatus.SearchingStandard;
                 searchingWideCount = response.QuickPlayStatus.SearchingWide;
-                searchingHz60Count = response.QuickPlayStatus.SearchingHz60;
-                searchingHz240Count = response.QuickPlayStatus.SearchingHz240;
 
                 if (response.QuickPlayStatus.Queued)
                 {
@@ -804,10 +800,6 @@ namespace TF.EX.Domain.Services
                 var response = MessagePackSerializer.Deserialize<RankedMatchFoundMessage>(bytes);
                 searchingStandardCount = 0;
                 searchingWideCount = 0;
-            searchingHz60Count = 0;
-            searchingHz240Count = 0;
-                searchingHz60Count = 0;
-                searchingHz240Count = 0;
 
                 if (onRankedMatched == null)
                 {
@@ -2069,8 +2061,6 @@ namespace TF.EX.Domain.Services
             onQuickPlayFailed = onFail == null ? null : message => RunOnGameThread(() => onFail(message));
             searchingStandardCount = 0;
             searchingWideCount = 0;
-            searchingHz60Count = 0;
-            searchingHz240Count = 0;
 
             if (!EnsureConnection())
             {
@@ -2106,8 +2096,6 @@ namespace TF.EX.Domain.Services
             onRankedFailed = onFail == null ? null : message => RunOnGameThread(() => onFail(message));
             searchingStandardCount = 0;
             searchingWideCount = 0;
-            searchingHz60Count = 0;
-            searchingHz240Count = 0;
 
             if (!EnsureConnection())
             {
@@ -2126,8 +2114,6 @@ namespace TF.EX.Domain.Services
             onRankedFailed = null;
             searchingStandardCount = 0;
             searchingWideCount = 0;
-            searchingHz60Count = 0;
-            searchingHz240Count = 0;
 
             if (IsConnectedToServer())
             {
@@ -2199,11 +2185,6 @@ namespace TF.EX.Domain.Services
         public int GetWideSearchingCount()
         {
             return searchingWideCount;
-        }
-
-        public int GetSearchingCountAt(int tickRate)
-        {
-            return tickRate == Models.Constants.VANILLA_FPS ? searchingHz60Count : searchingHz240Count;
         }
 
         public bool IsSearchWide()

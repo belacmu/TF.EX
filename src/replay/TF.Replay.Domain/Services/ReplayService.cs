@@ -189,7 +189,7 @@ namespace TF.Replay.Domain.Services
         public int RecordCount => _replay?.Record.Count ?? 0;
         public int LastFrame => _lastFrame;
 
-        public void BeginRecording(int towerId, int mode, int versusMatchLength, IEnumerable<string> variants, IEnumerable<CustomMod> mods)
+        public void BeginRecording(int towerId, int mode, int versusMatchLength, IEnumerable<string> variants, IEnumerable<CustomMod> mods, int? tickRate = null)
         {
             if (_replay != null)
             {
@@ -219,7 +219,7 @@ namespace TF.Replay.Domain.Services
                     Id = towerId,
                     LocalSeat = -1,
                     Version = ReplayVersionExtensions.GetLatest(),
-                    TickRate = CurrentTickRate(),
+                    TickRate = tickRate ?? CurrentTickRate(),
                     StateSchema = StateApi()?.GetStateSchemaVersion(),
                     CustomGoal = TowerFall.MatchSettings.CustomGoal,
                     Mode = mode,
@@ -249,7 +249,7 @@ namespace TF.Replay.Domain.Services
             _lastFrame = Math.Max(_lastFrame, recordedFrame);
         }
 
-        private int KeyframeStride() => RecordingPolicy.FullStates ? 1 : Math.Max(1, CurrentTickRate() / KeyframesPerSecond);
+        private int KeyframeStride() => RecordingPolicy.FullStates ? 1 : Math.Max(1, _replay.Informations.TickRateOrLegacy / KeyframesPerSecond);
 
         public void RemovePredictedRecords(int frame)
         {

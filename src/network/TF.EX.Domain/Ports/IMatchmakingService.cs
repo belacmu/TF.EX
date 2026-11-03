@@ -39,7 +39,6 @@ namespace TF.EX.Domain.Ports
         int GetSearchingCount();
         int GetStandardSearchingCount();
         int GetWideSearchingCount();
-        int GetSearchingCountAt(int tickRate);
         bool IsSearchWide();
         bool IsQuickPlayStarting();
 

@@ -2,8 +2,10 @@ using FortRise;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using TF.EX.Domain;
+using TF.EX.Domain.Extensions;
 using TF.EX.Domain.Models;
 
 namespace TF.EX
@@ -24,7 +26,7 @@ namespace TF.EX
 
         private static readonly string[] AutoAdjustModes = { "DISABLED", "PROPOSE", "ENABLED" };
         private static readonly string[] CustomSkinModes = { "DISABLED", "FULL" };
-        private static readonly string[] GameLogicSpeedModes = { "BEST", "240 HZ", "60 HZ" };
+        private static readonly string[] GameLogicSpeedModes = Enum.GetValues<GameLogicSpeedMode>().Select(mode => mode.ToLabel()).ToArray();
 
         public override void Create(ISettingsCreate settings)
         {
@@ -148,13 +150,8 @@ namespace TF.EX
                 : CustomSkinMode.Full;
             CustomSkins = skinMode.ToString().ToUpperInvariant();
 
-            var speedMode = GameLogicSpeed switch
-            {
-                "240 HZ" => GameLogicSpeedMode.Hz240,
-                "60 HZ" => GameLogicSpeedMode.Hz60,
-                _ => GameLogicSpeedMode.Best,
-            };
-            GameLogicSpeed = GameLogicSpeedModes[(int)speedMode];
+            var speedMode = Enum.GetValues<GameLogicSpeedMode>().FirstOrDefault(mode => mode.ToLabel() == GameLogicSpeed);
+            GameLogicSpeed = speedMode.ToLabel();
 
             var playerId = (PlayerId ?? "").Trim();
             if (playerId.Length == 0)

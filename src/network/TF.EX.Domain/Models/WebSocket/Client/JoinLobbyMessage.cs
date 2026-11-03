@@ -25,6 +25,6 @@ namespace TF.EX.Domain.Models.WebSocket.Client
         public int LocalPlayers { get; set; } = 1;
 
         [DataMember(Name = "game_logic_speed")]
-        public string GameLogicSpeed { get; set; } = "";
+        public string GameLogicSpeed { get; set; }
     }
 }
