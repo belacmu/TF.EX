@@ -282,7 +282,8 @@ namespace TF.EX.Domain.Services
                     RoomId = roomId,
                     Name = NetplayPreferences.Name,
                     IsPlayer = currentAction == WSAction.JoinLobby,
-                    LocalPlayers = _inputService.GetLocalPlayerCount()
+                    LocalPlayers = _inputService.GetLocalPlayerCount(),
+                    GameLogicSpeed = NetplayPreferences.GameLogicSpeed.ToString()
                 }
             };
 
@@ -300,7 +301,8 @@ namespace TF.EX.Domain.Services
                     Code = pendingJoinCode,
                     Name = NetplayPreferences.Name,
                     IsPlayer = pendingJoinAsPlayer,
-                    LocalPlayers = _inputService.GetLocalPlayerCount()
+                    LocalPlayers = _inputService.GetLocalPlayerCount(),
+                    GameLogicSpeed = NetplayPreferences.GameLogicSpeed.ToString()
                 }
             };
 
