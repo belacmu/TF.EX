@@ -408,7 +408,11 @@ namespace TF.EX.Patchs.Scene
 
         private static void RenderSearchingCounts(IMatchmakingService matchmakingService)
         {
-            var searching = matchmakingService.GetSearchingCount();
+            var otherRate = NetplayPreferences.GameLogicSpeed.FixedTickRate() is int ownRate
+                ? ownRate == Domain.Models.Constants.VANILLA_FPS ? Domain.Models.Constants.NETPLAY_FPS : Domain.Models.Constants.VANILLA_FPS
+                : (int?)null;
+            var otherSearching = otherRate is int rate ? matchmakingService.GetSearchingCountAt(rate) : 0;
+            var searching = matchmakingService.GetSearchingCount() - otherSearching;
 
             if (searching > 0)
             {
@@ -426,16 +430,10 @@ namespace TF.EX.Patchs.Scene
                 Monocle.Draw.OutlineTextJustify(TFGame.Font, label, new Vector2(8f, 8f), Color.Gray, Color.Black, new Vector2(0f, 0f));
             }
 
-            if (NetplayPreferences.GameLogicSpeed.FixedTickRate() is int ownRate)
+            if (otherSearching > 0)
             {
-                var otherRate = ownRate == Domain.Models.Constants.VANILLA_FPS ? Domain.Models.Constants.NETPLAY_FPS : Domain.Models.Constants.VANILLA_FPS;
-                var otherSearching = matchmakingService.GetSearchingCountAt(otherRate);
-
-                if (otherSearching > 0)
-                {
-                    var label = $"{otherRate} HZ: {otherSearching} SEARCHING";
-                    Monocle.Draw.OutlineTextJustify(TFGame.Font, label, new Vector2(8f, setSearching > 0 ? 18f : 8f), Color.Gray, Color.Black, new Vector2(0f, 0f));
-                }
+                var label = $"{otherRate} HZ: {otherSearching} SEARCHING";
+                Monocle.Draw.OutlineTextJustify(TFGame.Font, label, new Vector2(8f, setSearching > 0 ? 18f : 8f), Color.Gray, Color.Black, new Vector2(0f, 0f));
             }
         }
 

@@ -74,7 +74,7 @@ namespace TF.EX
                     GameLogicSpeed = selection.Item1;
                     Apply();
                 },
-                "THE SPEED ONLINE MATCHES RUN AT. \n 240 HZ IS SMOOTHER, 60 HZ IS LIGHTER FOR SLOWER DEVICES. \n BEST PLAYS 240 HZ UNLESS SOMEONE IN THE LOBBY NEEDS 60 HZ. \n RANKED IS ALWAYS 240 HZ");
+                "THE SPEED ONLINE MATCHES RUN AT. \n 240 HZ IS SMOOTHER, 60 HZ IS LIGHTER FOR SLOWER DEVICES. \n BEST PLAYS 240 HZ UNLESS A PLAYER NEEDS 60 HZ. \n RANKED IS ALWAYS 240 HZ");
 
             settings.CreateOptions(
                 "CUSTOM SKINS",
