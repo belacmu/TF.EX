@@ -6,7 +6,7 @@ namespace TF.EX.Domain.CustomComponent
 {
     public class LobbyVersusPlayerCountButton : LobbyBorderButton
     {
-        private const int MAX_PLAYERS = 4;
+        public static int MAX_PLAYERS => Models.Constants.MAX_PLAYERS;
         private const int DEFAULT_PLAYERS = 2;
 
         private int MinPlayers => new[]

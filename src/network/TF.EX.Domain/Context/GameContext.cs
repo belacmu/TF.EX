@@ -40,7 +40,6 @@ namespace TF.EX.Domain.Context
 
     internal class GameContext : IGameContext
     {
-        private const int MAX_PLAYERS = 4;
         private const int INPUT_LOCK_TIMEOUT_SECONDS = 5;
 
         private readonly AttributeManager<Input> CurrentInputs;
@@ -58,7 +57,7 @@ namespace TF.EX.Domain.Context
 
         public GameContext()
         {
-            CurrentInputs = new AttributeManager<Input>(EmptyInput, MAX_PLAYERS);
+            CurrentInputs = new AttributeManager<Input>(EmptyInput, Constants.MAX_PLAYERS);
         }
 
         private Input EmptyInput() { return new Input(); }

@@ -567,7 +567,7 @@ namespace TF.Replay.Domain.Services
             var recorded = informations.Teams ?? [];
             var known = recorded.Any(team => team >= 0);
 
-            for (int seat = 0; seat < 4; seat++)
+            for (int seat = 0; seat < TFGame.Players.Length; seat++)
             {
                 matchSettings.Teams[seat] = known
                     ? (Allegiance)(seat < recorded.Length ? recorded[seat] : (int)Allegiance.Neutral)

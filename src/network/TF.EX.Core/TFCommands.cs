@@ -379,7 +379,7 @@ namespace TF.EX.Core
             StateApi.Current.SetSeed(seed);
             replayService.Initialize();
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < TFGame.Players.Length; i++)
             {
                 TFGame.Players[i] = TFGame.PlayerInputs[i] != null;
             }
@@ -525,7 +525,7 @@ namespace TF.EX.Core
 
         private static void StartGame(TowerFall.Modes mode, INetplayManager netplayManager = null, int map = 0, int startLevel = 0, List<string> variants = null, int playerCount = 0, List<string> levelPaths = null)
         {
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < TFGame.Players.Length; i++)
             {
                 TFGame.Players[i] = playerCount > 0 ? i < playerCount : TFGame.PlayerInputs[i] != null;
             }
@@ -538,7 +538,7 @@ namespace TF.EX.Core
 
             if (matchSettings.TeamMode)
             {
-                for (int i = 0; i < 4; i++)
+                for (int i = 0; i < TFGame.Players.Length; i++)
                 {
                     matchSettings.Teams[i] = i % 2 == 0 ? Allegiance.Blue : Allegiance.Red;
                 }
