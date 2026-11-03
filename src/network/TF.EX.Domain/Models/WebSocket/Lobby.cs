@@ -78,6 +78,27 @@ namespace TF.EX.Domain.Models.WebSocket
         public int? SeriesInputDelay => IsSeriesLobby ? Players.FirstOrDefault(player => player.IsHost)?.InputDelay : null;
 
         [IgnoreMember]
+        public int TickRate => TickRateOf(SessionPlayers);
+
+        [IgnoreMember]
+        public int? FixedTickRate => Players.Select(player => player.GameLogicSpeedMode.FixedTickRate()).FirstOrDefault(rate => rate != null);
+
+        public bool Accepts(GameLogicSpeedMode mode)
+        {
+            return mode.FixedTickRate() is not int rate || FixedTickRate is not int fixedRate || rate == fixedRate;
+        }
+
+        public int TickRateWith(GameLogicSpeedMode mode)
+        {
+            return mode == GameLogicSpeedMode.Hz60 ? Constants.VANILLA_FPS : TickRate;
+        }
+
+        public static int TickRateOf(IEnumerable<Player> players)
+        {
+            return players.Any(player => player.GameLogicSpeedMode == GameLogicSpeedMode.Hz60) ? Constants.VANILLA_FPS : Constants.NETPLAY_FPS;
+        }
+
+        [IgnoreMember]
         public bool IsTeamMode => !IsEmpty && (TowerFall.Modes)GameData.Mode == TowerFall.Modes.TeamDeathmatch;
 
         [IgnoreMember]
@@ -223,6 +244,11 @@ namespace TF.EX.Domain.Models.WebSocket
 
         public int LocalIndex { get; set; } = 0;
 
+        public string GameLogicSpeed { get; set; } = "";
+
+        [IgnoreMember]
+        public GameLogicSpeedMode GameLogicSpeedMode => GameLogicSpeed.ToGameLogicSpeedMode();
+
         [IgnoreMember]
         public bool IsGuest => LocalIndex > 0;
 
@@ -245,6 +271,7 @@ namespace TF.EX.Domain.Models.WebSocket
                 ArcherMods = ArcherMods,
                 StartsWithoutHat = StartsWithoutHat,
                 UseInstantReplay = UseInstantReplay,
+                GameLogicSpeed = GameLogicSpeed,
                 HaveModifiedGameFiles = HaveModifiedGameFiles,
                 Platform = Platform,
                 InputDelay = InputDelay,

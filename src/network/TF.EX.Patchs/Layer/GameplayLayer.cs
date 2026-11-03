@@ -52,7 +52,7 @@ namespace TF.EX.Patchs.Layer
                     SpectatorInputDisplay.RenderGuide(wideOffset);
 
                     var framesBehind = GGRSFFI.netplay_frames_behind();
-                    if (framesBehind > 2 * TF.EX.Domain.Models.Constants.NETPLAY_FPS)
+                    if (framesBehind > 2 * netplayManager.GetSessionFps())
                     {
                         var chasing = netplayManager.IsSpectatorCatchupEnabled();
                         Draw.OutlineTextCentered(

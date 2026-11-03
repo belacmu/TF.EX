@@ -711,6 +711,7 @@ namespace TF.EX.Patchs.Scene
                         IsHost = true,
                         CustomVariants = MainMenu.VersusMatchSettings.Variants.CustomVariantTitles(),
                         UseInstantReplay = NetplayOptions.UseInstantReplay,
+                        GameLogicSpeed = NetplayPreferences.GameLogicSpeed.ToString(),
                         HaveModifiedGameFiles = GameFilesIntegrity.IsModified,
                         Platform = Domain.Utils.Platform.Current
                     });
@@ -2143,6 +2144,7 @@ namespace TF.EX.Patchs.Scene
                 {
                     ownPlayer.CustomVariants = MainMenu.VersusMatchSettings.Variants.CustomVariantTitles();
                     ownPlayer.UseInstantReplay = NetplayOptions.UseInstantReplay;
+                    ownPlayer.GameLogicSpeed = NetplayPreferences.GameLogicSpeed.ToString();
                     Task.Run(() => matchmakingService.UpdatePlayer(ownPlayer, () => { }, () => { }));
                 }
             }

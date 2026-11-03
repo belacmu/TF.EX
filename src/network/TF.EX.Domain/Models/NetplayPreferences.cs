@@ -13,6 +13,31 @@ namespace TF.EX.Domain.Models
         Full,
     }
 
+    public enum GameLogicSpeedMode
+    {
+        Best,
+        Hz240,
+        Hz60,
+    }
+
+    public static class GameLogicSpeedModeExtensions
+    {
+        public static int? FixedTickRate(this GameLogicSpeedMode mode)
+        {
+            return mode switch
+            {
+                GameLogicSpeedMode.Hz240 => Constants.NETPLAY_FPS,
+                GameLogicSpeedMode.Hz60 => Constants.VANILLA_FPS,
+                _ => null,
+            };
+        }
+
+        public static GameLogicSpeedMode ToGameLogicSpeedMode(this string value)
+        {
+            return Enum.TryParse<GameLogicSpeedMode>(value, out var mode) ? mode : GameLogicSpeedMode.Hz240;
+        }
+    }
+
     public static class NetplayPreferences
     {
         public const int MinInputDelay = 0;
@@ -33,12 +58,13 @@ namespace TF.EX.Domain.Models
         public static AutoAdjustInputDelayMode AutoAdjustInputDelay = AutoAdjustInputDelayMode.Propose;
         public static CustomSkinMode CustomSkins = CustomSkinMode.Full;
         public static bool AutoUpdate = true;
+        public static GameLogicSpeedMode GameLogicSpeed = GameLogicSpeedMode.Best;
 
         public static bool IsOfficialServer => IsOfficial(Server);
 
-        public static int InputDelayFrames => ToFrames(InputDelay);
+        public static int InputDelayFrames(int fps) => ToFrames(InputDelay, fps);
 
-        public static int ToFrames(int ms) => (ms * Constants.NETPLAY_FPS + 999) / 1000;
+        public static int ToFrames(int ms, int fps) => (ms * fps + 999) / 1000;
 
         public static bool IsOfficial(string server)
         {

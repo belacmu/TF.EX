@@ -17,12 +17,14 @@ namespace TF.EX
         public string AutoAdjustInputDelay { get; set; } = "PROPOSE";
         public string CustomSkins { get; set; } = "FULL";
         public bool AutoUpdate { get; set; } = true;
+        public string GameLogicSpeed { get; set; } = "BEST";
         public string PlayerId { get; set; } = "";
         public string LastVersionSeen { get; set; } = "";
         public bool HasSeenTutorial { get; set; }
 
         private static readonly string[] AutoAdjustModes = { "DISABLED", "PROPOSE", "ENABLED" };
         private static readonly string[] CustomSkinModes = { "DISABLED", "FULL" };
+        private static readonly string[] GameLogicSpeedModes = { "BEST", "240 HZ", "60 HZ" };
 
         public override void Create(ISettingsCreate settings)
         {
@@ -62,6 +64,17 @@ namespace TF.EX
                 NetplayPreferences.MinAcceptedRollbackFrames,
                 NetplayPreferences.MaxAcceptedRollbackFrames,
                 1);
+
+            settings.CreateOptions(
+                "GAME LOGIC SPEED",
+                GameLogicSpeed,
+                GameLogicSpeedModes,
+                selection =>
+                {
+                    GameLogicSpeed = selection.Item1;
+                    Apply();
+                },
+                "THE SPEED ONLINE MATCHES RUN AT. \n 240 HZ IS SMOOTHER, 60 HZ IS LIGHTER FOR SLOWER DEVICES. \n BEST PLAYS 240 HZ UNLESS SOMEONE IN THE LOBBY NEEDS 60 HZ. \n RANKED IS ALWAYS 240 HZ");
 
             settings.CreateOptions(
                 "CUSTOM SKINS",
@@ -135,6 +148,14 @@ namespace TF.EX
                 : CustomSkinMode.Full;
             CustomSkins = skinMode.ToString().ToUpperInvariant();
 
+            var speedMode = GameLogicSpeed switch
+            {
+                "240 HZ" => GameLogicSpeedMode.Hz240,
+                "60 HZ" => GameLogicSpeedMode.Hz60,
+                _ => GameLogicSpeedMode.Best,
+            };
+            GameLogicSpeed = GameLogicSpeedModes[(int)speedMode];
+
             var playerId = (PlayerId ?? "").Trim();
             if (playerId.Length == 0)
             {
@@ -150,6 +171,7 @@ namespace TF.EX
             NetplayPreferences.AutoAdjustInputDelay = mode;
             NetplayPreferences.CustomSkins = skinMode;
             NetplayPreferences.AutoUpdate = AutoUpdate;
+            NetplayPreferences.GameLogicSpeed = speedMode;
         }
 
         private void MigrateLegacyConfig()

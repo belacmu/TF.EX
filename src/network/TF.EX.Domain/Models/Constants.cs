@@ -8,9 +8,9 @@ namespace TF.EX.Domain.Models
         public const int NETPLAY_FPS = 240;
 
         public const int MAX_PREDICTION_FRAMES = 15;
-        public const int MAX_PREDICTION_TICKS = MAX_PREDICTION_FRAMES * NETPLAY_FPS / VANILLA_FPS;
+        public static int MaxPredictionTicks(int fps) => MAX_PREDICTION_FRAMES * fps / VANILLA_FPS;
 
-        public const int SPECTATOR_CATCHUP_THRESHOLD = NETPLAY_FPS / 2;
+        public static int SpectatorCatchupThreshold(int fps) => fps / 2;
 
         public const int CONNECTION_TIMEOUT_MS = 30000;
 

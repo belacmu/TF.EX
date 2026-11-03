@@ -7,6 +7,7 @@ using TF.EX.Common.Extensions;
 using TF.EX.Domain;
 using TF.EX.Domain.CustomComponent;
 using TF.EX.Domain.Extensions;
+using TF.EX.Domain.Models;
 using TowerFall;
 
 namespace TF.EX.Patchs.Entity.MenuItem
@@ -98,6 +99,7 @@ namespace TF.EX.Patchs.Entity.MenuItem
                             player.StartsWithoutHat = ArcherDataExtensions.StartsWithoutHat(player.ArcherIndex, player.ArcherAltIndex);
                             player.CustomVariants = MainMenu.VersusMatchSettings.Variants.CustomVariantTitles();
                             player.UseInstantReplay = NetplayOptions.UseInstantReplay;
+                            player.GameLogicSpeed = NetplayPreferences.GameLogicSpeed.ToString();
                             archerService.RemoveArcher(playerIndex);
 
                             inputService.DisableAllControllers();
@@ -261,6 +263,7 @@ namespace TF.EX.Patchs.Entity.MenuItem
                         player.StartsWithoutHat = ArcherDataExtensions.StartsWithoutHat(player.ArcherIndex, player.ArcherAltIndex);
                         player.CustomVariants = MainMenu.VersusMatchSettings.Variants.CustomVariantTitles();
                         player.UseInstantReplay = NetplayOptions.UseInstantReplay;
+                        player.GameLogicSpeed = NetplayPreferences.GameLogicSpeed.ToString();
 
                         var modCollections = ServiceCollections.ResolveModCollections();
                         player.ArcherMods = ArcherDataExtensions.GetInstalledArcherMods(mod => modCollections?.GetVersion(mod));

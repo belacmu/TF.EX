@@ -42,6 +42,7 @@ namespace TF.EX.Patchs.Engine
         private const double LIVE_CATCHUP_RATIO = 8.0;
         private const float MAX_NOTIFICATION_TEXT_WIDTH = 290f; //vanilla screen minus some margin
         private static bool? _preSessionFixedStep;
+        private static bool _sessionStepOverridden;
         private static bool _oneFrameDelayForced;
         internal static bool IsRunningUnsynchronizedUpdate;
 
@@ -325,7 +326,7 @@ namespace TF.EX.Patchs.Engine
                 {
                     fpsDelta *= SLOW_RATIO;
                 }
-                else if (netplayManager.IsSpectatorMode() && GGRSFFI.netplay_frames_behind() > Constants.SPECTATOR_CATCHUP_THRESHOLD)
+                else if (netplayManager.IsSpectatorMode() && GGRSFFI.netplay_frames_behind() > Constants.SpectatorCatchupThreshold(netplayManager.GetSessionFps()))
                 {
                     fpsDelta /= netplayManager.IsSpectatorCatchupEnabled() ? LIVE_CATCHUP_RATIO : DELAYED_CATCHUP_RATIO;
                 }
@@ -892,12 +893,20 @@ namespace TF.EX.Patchs.Engine
                     _oneFrameDelayForced = true;
 
                     var sessionFps = netplayManager.GetSessionFps();
-                    if (!netplayManager.IsReplayMode() && sessionFps != Domain.Models.Constants.NETPLAY_FPS)
+                    if (!netplayManager.IsReplayMode())
                     {
-                        var ticks = (long)Math.Round(TimeSpan.TicksPerSecond / (double)sessionFps);
-                        if (self.TargetElapsedTime.Ticks != ticks)
+                        if (sessionFps != Domain.Models.Constants.NETPLAY_FPS)
                         {
-                            self.TargetElapsedTime = TimeSpan.FromTicks(ticks);
+                            var ticks = (long)Math.Round(TimeSpan.TicksPerSecond / (double)sessionFps);
+                            if (self.TargetElapsedTime.Ticks != ticks)
+                            {
+                                self.TargetElapsedTime = TimeSpan.FromTicks(ticks);
+                                _sessionStepOverridden = true;
+                            }
+                        }
+                        else
+                        {
+                            RestoreSessionStep(self);
                         }
                     }
                     break;
@@ -907,8 +916,19 @@ namespace TF.EX.Patchs.Engine
             }
         }
 
+        private static void RestoreSessionStep(TowerFall.TFGame self)
+        {
+            if (_sessionStepOverridden)
+            {
+                _sessionStepOverridden = false;
+                self.EnableFixedTimeStep(true);
+            }
+        }
+
         private static void RestoreTimeStep(TowerFall.TFGame self)
         {
+            RestoreSessionStep(self);
+
             if (_preSessionFixedStep is bool previous)
             {
                 _preSessionFixedStep = null;

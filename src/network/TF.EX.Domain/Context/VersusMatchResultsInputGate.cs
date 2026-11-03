@@ -16,7 +16,7 @@ namespace TF.EX.Domain.Context
             _isRollbacking = false;
         }
 
-        public static bool ShouldFeedNeutralInput(Level level) => !_isRollbacking && IsVersusMatchResultsShown(level) && _shownFrames > Models.Constants.MAX_PREDICTION_TICKS;
+        public static bool ShouldFeedNeutralInput(Level level) => !_isRollbacking && IsVersusMatchResultsShown(level) && _shownFrames > Models.Constants.MaxPredictionTicks(ServiceCollections.ResolveNetplayManager().GetSessionFps());
 
         public static void OnFrameAdvanced(Level level)
         {

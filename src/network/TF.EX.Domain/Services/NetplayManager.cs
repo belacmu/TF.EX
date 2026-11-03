@@ -152,8 +152,9 @@ namespace TF.EX.Domain.Services
             StateApi.Current.SetFrameDriver(Models.Constants.DRIVER_NAME);
 
             GGRSConfig.Name = NetplayPreferences.Name;
+            GGRSConfig.Fps = GetSessionFps();
             GGRSConfig.InputDelay = ServiceCollections.ResolveMatchmakingService().GetOwnLobby().SeriesInputDelay ?? GetEffectiveInputDelay();
-            GGRSConfig.MaxInputDelay = NetplayPreferences.ToFrames(NetplayPreferences.MaxInputDelay);
+            GGRSConfig.MaxInputDelay = NetplayPreferences.ToFrames(NetplayPreferences.MaxInputDelay, GGRSConfig.Fps);
 
             _cancellationTokenSource = new CancellationTokenSource();
             _cancellationToken = _cancellationTokenSource.Token;
@@ -438,7 +439,7 @@ namespace TF.EX.Domain.Services
 
                     if (!IsDisconnected()
                         && IsSpectatorMode()
-                        && GGRSFFI.netplay_frames_behind() > 2 * Models.Constants.NETPLAY_FPS)
+                        && GGRSFFI.netplay_frames_behind() > 2 * GetSessionFps())
                     {
                         ServiceCollections.ResolveMatchmakingService().QueueSpectatorNotice("MATCH OVER, WILL END OR RESTART");
                     }
@@ -926,7 +927,7 @@ namespace TF.EX.Domain.Services
             }
         }
 
-        public int GetEffectiveInputDelay() => _sessionInputDelay ?? NetplayPreferences.InputDelayFrames;
+        public int GetEffectiveInputDelay() => _sessionInputDelay ?? NetplayPreferences.InputDelayFrames(GetSessionFps());
 
         public void SetSessionInputDelay(int inputDelay)
         {
@@ -1003,7 +1004,14 @@ namespace TF.EX.Domain.Services
 
         public int GetSessionFps()
         {
-            return GGRSConfig?.Fps ?? Models.Constants.NETPLAY_FPS;
+            if (_isInit || _netplayMode is NetplayMode.Test or NetplayMode.Replay)
+            {
+                return GGRSConfig?.Fps ?? Models.Constants.NETPLAY_FPS;
+            }
+
+            var lobby = ServiceCollections.ResolveMatchmakingService().GetOwnLobby();
+
+            return lobby.IsEmpty ? Models.Constants.NETPLAY_FPS : lobby.TickRate;
         }
 
         public void SetLocalMode(string addr, ushort localPort, PlayerDraw draw)

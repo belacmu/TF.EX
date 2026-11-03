@@ -16,10 +16,11 @@ namespace TF.EX.Domain
         private const int KeyframeStride = 60;
         private const int RoundEndToleranceTicks = 60;
         private const int FootageFrames = ReplayRecorder.RECORD_FRAMES;
-        private const float TickSeconds = 1f / Constants.NETPLAY_FPS;
-        private const float FootageSeconds = FootageFrames * (ReplayRecorder.TIME_BETWEEN_FRAMES + TickSeconds);
-        private const int HalfSpeedFootageTicks = (int)(FootageSeconds * Constants.NETPLAY_FPS * 2);
-        private const int Goal = HalfSpeedFootageTicks + 2 * KeyframeStride + Constants.MAX_PREDICTION_TICKS;
+        private static int Fps => ServiceCollections.ResolveNetplayManager().GetSessionFps();
+        private static float TickSeconds => 1f / Fps;
+        private static float FootageSeconds => FootageFrames * (ReplayRecorder.TIME_BETWEEN_FRAMES + TickSeconds);
+        private static int HalfSpeedFootageTicks => (int)(FootageSeconds * Fps * 2);
+        private static int Goal => HalfSpeedFootageTicks + 2 * KeyframeStride + Constants.MaxPredictionTicks(Fps);
 
         private static readonly Action<float> SetEngineTimeMult = StaticSetter<float>(nameof(Engine.TimeMult));
         private static readonly Action<float> SetEngineDeltaTime = StaticSetter<float>(nameof(Engine.DeltaTime));
@@ -92,7 +93,7 @@ namespace TF.EX.Domain
 
             var resultsAge = StateApi.Current.GetRoundResultsAge();
 
-            if (resultsAge < (UsesScreenRecorder ? 1 : Constants.MAX_PREDICTION_TICKS))
+            if (resultsAge < (UsesScreenRecorder ? 1 : Constants.MaxPredictionTicks(Fps)))
             {
                 return;
             }
@@ -227,7 +228,7 @@ namespace TF.EX.Domain
 
         private static bool IsCatchingUp()
         {
-            return IsLive() && GGRSFFI.netplay_frames_behind() > Constants.SPECTATOR_CATCHUP_THRESHOLD;
+            return IsLive() && GGRSFFI.netplay_frames_behind() > Constants.SpectatorCatchupThreshold(Fps);
         }
 
         private static bool IsLive()

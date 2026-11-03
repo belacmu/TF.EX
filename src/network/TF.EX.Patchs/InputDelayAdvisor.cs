@@ -16,7 +16,6 @@ namespace TF.EX.Patchs
         private static readonly TimeSpan StepRepeatDelay = TimeSpan.FromMilliseconds(300);
         private static readonly TimeSpan StepRepeatInterval = TimeSpan.FromMilliseconds(50);
         private static readonly TimeSpan CursorLinger = TimeSpan.FromSeconds(2);
-        private const double FrameMs = 1000.0 / Constants.NETPLAY_FPS;
         private const int RelayRollbackFactor = 2;
         private const int RankedAcceptedRollbackFrames = 2;
         private const string HostDelayMsg = "SET BY HOST";
@@ -40,6 +39,7 @@ namespace TF.EX.Patchs
         private static readonly Color HoverColor = Color.LightGray;
 
         private static string roomId = "";
+        private static int tickRate = Constants.NETPLAY_FPS;
         private static DateTime? enabledPendingSince;
         private static bool displaying;
         private static int? proposedDelay;
@@ -67,8 +67,10 @@ namespace TF.EX.Patchs
         public static bool ConsumedAlt2 { get; private set; }
         public static bool TapReleased { get; private set; }
 
-        private static int MinFrames => NetplayPreferences.ToFrames(NetplayPreferences.MinInputDelay);
-        private static int MaxFrames => NetplayPreferences.ToFrames(NetplayPreferences.MaxInputDelay);
+        private static double FrameMs => 1000.0 / tickRate;
+        private static int MinFrames => NetplayPreferences.ToFrames(NetplayPreferences.MinInputDelay, tickRate);
+        private static int MaxFrames => NetplayPreferences.ToFrames(NetplayPreferences.MaxInputDelay, tickRate);
+        private static int PreferredFrames => NetplayPreferences.InputDelayFrames(tickRate);
         private static float WideOffset => ServiceCollections.ResolveWiderSetModApi()?.UIXOffset ?? 0f;
         private const float ScreenRight = 320f;
         private const float TrackRight = ScreenRight - TrackRightMargin;
@@ -109,10 +111,11 @@ namespace TF.EX.Patchs
 
             var isLobbyMenu = mainMenu.State == MainMenu.MenuState.Rollcall || isSeriesLayout;
 
-            if (lobby.RoomId != roomId)
+            if (lobby.RoomId != roomId || lobby.TickRate != tickRate)
             {
                 Reset(netplayManager);
                 roomId = lobby.RoomId;
+                tickRate = lobby.TickRate;
             }
 
             if (lobby.IsSeriesLobby && OwnPlayer(matchmakingService, lobby) is Domain.Models.WebSocket.Player own)
@@ -143,7 +146,7 @@ namespace TF.EX.Patchs
             }
 
             UpdateProposal(matchmakingService, lobby, NetplayPreferences.AcceptedRollbackFrames);
-            currentDelay = appliedDelay ?? NetplayPreferences.InputDelayFrames;
+            currentDelay = appliedDelay ?? PreferredFrames;
 
             if (mode == AutoAdjustInputDelayMode.Enabled)
             {
@@ -186,7 +189,7 @@ namespace TF.EX.Patchs
             }
 
             UpdateProposal(matchmakingService, lobby, RankedAcceptedRollbackFrames);
-            currentDelay = appliedDelay ?? NetplayPreferences.InputDelayFrames;
+            currentDelay = appliedDelay ?? PreferredFrames;
             ApplyStableProposal(netplayManager);
         }
 
@@ -394,7 +397,7 @@ namespace TF.EX.Patchs
 
             appliedDelay = null;
             netplayManager.ClearSessionInputDelay();
-            currentDelay = NetplayPreferences.InputDelayFrames;
+            currentDelay = PreferredFrames;
             Sounds.ui_clickBack.Play();
         }
 
