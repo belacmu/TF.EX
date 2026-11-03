@@ -61,6 +61,8 @@ namespace TF.EX.Domain.Services
         private Action<string> onQuickPlayFailed;
         private int searchingStandardCount;
         private int searchingWideCount;
+        private int searchingHz60Count;
+        private int searchingHz240Count;
         private bool isSearchWide;
         private bool isQuickPlayQueued;
 
@@ -340,7 +342,8 @@ namespace TF.EX.Domain.Services
                 {
                     Name = NetplayPreferences.Name,
                     IsWide = isSearchWide,
-                    LocalPlayers = _inputService.GetLocalPlayerCount()
+                    LocalPlayers = _inputService.GetLocalPlayerCount(),
+                    GameLogicSpeed = NetplayPreferences.GameLogicSpeed.ToString()
                 }
             };
 
@@ -771,6 +774,8 @@ namespace TF.EX.Domain.Services
 
                 searchingStandardCount = response.QuickPlayStatus.SearchingStandard;
                 searchingWideCount = response.QuickPlayStatus.SearchingWide;
+                searchingHz60Count = response.QuickPlayStatus.SearchingHz60;
+                searchingHz240Count = response.QuickPlayStatus.SearchingHz240;
 
                 if (response.QuickPlayStatus.Queued)
                 {
@@ -797,6 +802,10 @@ namespace TF.EX.Domain.Services
                 var response = MessagePackSerializer.Deserialize<RankedMatchFoundMessage>(bytes);
                 searchingStandardCount = 0;
                 searchingWideCount = 0;
+            searchingHz60Count = 0;
+            searchingHz240Count = 0;
+                searchingHz60Count = 0;
+                searchingHz240Count = 0;
 
                 if (onRankedMatched == null)
                 {
@@ -1423,7 +1432,8 @@ namespace TF.EX.Domain.Services
                 || lobby.MaxPlayers != previous.MaxPlayers
                 || lobby.GameData.MatchLength != previous.GameData.MatchLength
                 || lobby.GameData.Mode != previous.GameData.Mode
-                || lobby.GameData.BestOf != previous.GameData.BestOf;
+                || lobby.GameData.BestOf != previous.GameData.BestOf
+                || lobby.TickRate != previous.TickRate;
 
             if (!anyChange)
             {
@@ -1482,6 +1492,11 @@ namespace TF.EX.Domain.Services
             if (lobby.GameData.BestOf != previous.GameData.BestOf)
             {
                 LobbyUpdateFeed.Push(lobby.GameData.BestOf > 0 ? $"SERIES BEST OF {lobby.GameData.BestOf}" : "SERIES OFF", null, NeutralTint);
+            }
+
+            if (lobby.TickRate != previous.TickRate)
+            {
+                LobbyUpdateFeed.Push($"NOW {lobby.TickRate} HZ", null, LobbyPanel.SpeedColor(lobby.TickRate));
             }
         }
 
@@ -2052,6 +2067,8 @@ namespace TF.EX.Domain.Services
             onQuickPlayFailed = onFail == null ? null : message => RunOnGameThread(() => onFail(message));
             searchingStandardCount = 0;
             searchingWideCount = 0;
+            searchingHz60Count = 0;
+            searchingHz240Count = 0;
 
             if (!EnsureConnection())
             {
@@ -2087,6 +2104,8 @@ namespace TF.EX.Domain.Services
             onRankedFailed = onFail == null ? null : message => RunOnGameThread(() => onFail(message));
             searchingStandardCount = 0;
             searchingWideCount = 0;
+            searchingHz60Count = 0;
+            searchingHz240Count = 0;
 
             if (!EnsureConnection())
             {
@@ -2105,6 +2124,8 @@ namespace TF.EX.Domain.Services
             onRankedFailed = null;
             searchingStandardCount = 0;
             searchingWideCount = 0;
+            searchingHz60Count = 0;
+            searchingHz240Count = 0;
 
             if (IsConnectedToServer())
             {
@@ -2176,6 +2197,11 @@ namespace TF.EX.Domain.Services
         public int GetWideSearchingCount()
         {
             return searchingWideCount;
+        }
+
+        public int GetSearchingCountAt(int tickRate)
+        {
+            return tickRate == Models.Constants.VANILLA_FPS ? searchingHz60Count : searchingHz240Count;
         }
 
         public bool IsSearchWide()

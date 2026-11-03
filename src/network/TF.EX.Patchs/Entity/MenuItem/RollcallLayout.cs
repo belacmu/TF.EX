@@ -9,6 +9,7 @@ namespace TF.EX.Patchs.Entity.MenuItem
         private static readonly Vector2 PING = new(0f, -66f);
         private static readonly Vector2 NAME = new(0f, 105f);
         private static readonly Vector2 TEAM = new(0f, 114f);
+        private static readonly Vector2 LINE = new(0f, 9f);
 
         private static readonly Vector2 WIDE_PING = new(-16f, -40f);
         private static readonly Vector2 WIDE_NAME = new(0f, 40f);
@@ -21,5 +22,15 @@ namespace TF.EX.Patchs.Entity.MenuItem
         public static Vector2 NameAt(RollcallElement element) => element.Position + (IsWide ? WIDE_NAME : NAME);
 
         public static Vector2 TeamAt(RollcallElement element) => element.Position + (IsWide ? WIDE_TEAM : TEAM);
+
+        public static Vector2 SpeedAt(RollcallElement element, bool belowTeam)
+        {
+            if (IsWide)
+            {
+                return NameAt(element) + LINE;
+            }
+
+            return TeamAt(element) + (belowTeam ? LINE : Vector2.Zero);
+        }
     }
 }

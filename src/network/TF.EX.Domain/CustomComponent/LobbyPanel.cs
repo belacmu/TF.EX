@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Monocle;
 using TF.EX.Domain.Extensions;
+using TF.EX.Domain.Models;
 using TF.EX.Domain.Models.WebSocket;
 using TF.EX.Domain.Utils;
 using TowerFall;
@@ -24,6 +25,7 @@ namespace TF.EX.Domain.CustomComponent
         private MatchSettings.MatchLengths matchLength = MatchSettings.MatchLengths.Standard;
 
         private Color lengthColor = Calc.HexToColor("3CBCFC");
+        private int tickRate = Constants.NETPLAY_FPS;
 
         private string[] lengthNames = new string[4] { "INSTANT MATCH", "QUICK MATCH", "STANDARD MATCH", "EPIC MATCH" };
 
@@ -51,7 +53,16 @@ namespace TF.EX.Domain.CustomComponent
             var position = new Vector2(Position.X, Position.Y);
             position.Y -= 10;
 
-            Draw.OutlineTextCentered(TFGame.Font, lengthNames[(int)matchLength], position + new Vector2(0f, -6f), lengthColor, 1f);
+            var length = lengthNames[(int)matchLength];
+            var speed = $"{tickRate} HZ";
+            var gap = 6f;
+            var lengthWidth = TFGame.Font.MeasureString(length).X;
+            var speedWidth = TFGame.Font.MeasureString(speed).X;
+            var left = position.X - (lengthWidth + gap + speedWidth) / 2f;
+            var y = position.Y - 6f;
+
+            Draw.OutlineTextCentered(TFGame.Font, length, new Vector2(left + lengthWidth / 2f, y), lengthColor, 1f);
+            Draw.OutlineTextCentered(TFGame.Font, speed, new Vector2(left + lengthWidth + gap + speedWidth / 2f, y), SpeedColor(tickRate), 1f);
 
             base.Render();
         }
@@ -117,6 +128,8 @@ namespace TF.EX.Domain.CustomComponent
             UpdateMode(lobby.GameData.Mode);
             UpdateTitle(lobby.GameData.MapId);
 
+            tickRate = lobby.TickRate;
+
             var (canJoin, reason) = (lobby.CanJoin, lobby.CanNotJoinReason);
 
             if (!canJoin && lobby.MissingVariants.Count == 0)
@@ -147,6 +160,19 @@ namespace TF.EX.Domain.CustomComponent
 
                 Add(liveIndicator);
             }
+            else if (lobby.TickRateWith(NetplayPreferences.GameLogicSpeed) != tickRate)
+            {
+                liveIndicator = new OutlineText(TFGame.Font, $"JOINING SETS {lobby.TickRateWith(NetplayPreferences.GameLogicSpeed)} HZ")
+                {
+                    Scale = Vector2.One * 1.3f,
+                    Color = Color.Yellow,
+                    OutlineColor = Color.Black
+                };
+
+                liveIndicator.Position.Y += 20;
+
+                Add(liveIndicator);
+            }
 
             if (lobby.IsSeriesLobby)
             {
@@ -164,6 +190,8 @@ namespace TF.EX.Domain.CustomComponent
             UpdateVariant(lobby.GameData.Variants);
             UpdateMatchLength(lobby.GameData.MatchLength);
         }
+
+        public static Color SpeedColor(int tickRate) => tickRate == Constants.NETPLAY_FPS ? Color.WhiteSmoke : Color.Orange;
 
         private void UpdateMatchLength(int matchLength)
         {

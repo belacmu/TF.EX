@@ -21,6 +21,12 @@ namespace TF.EX.Domain.Models.WebSocket.Server
         [DataMember(Name = "searching_wide")]
         public int SearchingWide { get; set; }
 
+        [DataMember(Name = "searching_hz60")]
+        public int SearchingHz60 { get; set; }
+
+        [DataMember(Name = "searching_hz240")]
+        public int SearchingHz240 { get; set; }
+
         [DataMember(Name = "message")]
         public string Message { get; set; }
     }

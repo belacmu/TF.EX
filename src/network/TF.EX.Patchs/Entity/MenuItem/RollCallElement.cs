@@ -33,6 +33,8 @@ namespace TF.EX.Patchs.Entity.MenuItem
                 return;
             }
 
+            Draw.OutlineTextCentered(TFGame.Font, $"{lobby.TickRate} HZ", new Vector2(40f, lobby.Spectators.Any() ? 30f : 20f), LobbyPanel.SpeedColor(lobby.TickRate), Color.Black);
+
             var seat = dynRollcall.Get<int>("playerIndex");
             var seated = lobby.Players.FirstOrDefault(player => player.Seat == seat);
 
@@ -50,6 +52,11 @@ namespace TF.EX.Patchs.Entity.MenuItem
                 var nameColor = dynRollcall.Get<StateMachine>("state").State == 1 ? archer.ColorB : archer.ColorA;
 
                 Draw.OutlineTextCentered(TFGame.Font, name, RollcallLayout.NameAt(__instance), nameColor, Color.Black);
+            }
+
+            if (seated.GameLogicSpeedMode.FixedTickRate() is int fixedRate && !string.IsNullOrEmpty(seated.GameLogicSpeed))
+            {
+                Draw.OutlineTextCentered(TFGame.Font, $"{fixedRate} HZ", RollcallLayout.SpeedAt(__instance, lobby.IsTeamMode), Color.Gray, Color.Black);
             }
 
             if (!lobby.IsTeamMode)

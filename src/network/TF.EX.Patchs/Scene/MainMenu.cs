@@ -425,6 +425,18 @@ namespace TF.EX.Patchs.Scene
                 var label = $"{setName}: {setSearching} SEARCHING";
                 Monocle.Draw.OutlineTextJustify(TFGame.Font, label, new Vector2(8f, 8f), Color.Gray, Color.Black, new Vector2(0f, 0f));
             }
+
+            if (NetplayPreferences.GameLogicSpeed.FixedTickRate() is int ownRate)
+            {
+                var otherRate = ownRate == Domain.Models.Constants.VANILLA_FPS ? Domain.Models.Constants.NETPLAY_FPS : Domain.Models.Constants.VANILLA_FPS;
+                var otherSearching = matchmakingService.GetSearchingCountAt(otherRate);
+
+                if (otherSearching > 0)
+                {
+                    var label = $"{otherRate} HZ: {otherSearching} SEARCHING";
+                    Monocle.Draw.OutlineTextJustify(TFGame.Font, label, new Vector2(8f, setSearching > 0 ? 18f : 8f), Color.Gray, Color.Black, new Vector2(0f, 0f));
+                }
+            }
         }
 
         [HarmonyPostfix]
@@ -1202,6 +1214,14 @@ namespace TF.EX.Patchs.Scene
                 return;
             }
 
+            if (NetplayPreferences.GameLogicSpeed == GameLogicSpeedMode.Hz60)
+            {
+                TowerFall.Sounds.ui_invalid.Play();
+                Notification.Create(self, "RANKED NEEDS GAME LOGIC SPEED BEST OR 240", 10, 300);
+                self.State = Domain.Models.MenuState.RankedSelect.ToTFModel();
+                return;
+            }
+
             ShowRankedSearching(self);
 
             Task.Run(() => matchmakingService.EnterRanked(
@@ -1391,6 +1411,11 @@ namespace TF.EX.Patchs.Scene
                 });
         }
 
+        private static string GameLogicSpeedRefusal(Lobby lobby)
+        {
+            return lobby.Accepts(NetplayPreferences.GameLogicSpeed) ? null : $"NEEDS {lobby.FixedTickRate} HZ";
+        }
+
         private static (bool canJoin, string reason) EvaluateLobbyCompatibility(Lobby newLobby)
         {
             var widerSetModApi = ServiceCollections.ResolveWiderSetModApi();
@@ -1422,6 +1447,11 @@ namespace TF.EX.Patchs.Scene
             if (!newLobby.GameData.Variants.All(availableVariants.Contains))
             {
                 return (false, "MISSING CUSTOM VARIANTS");
+            }
+
+            if (GameLogicSpeedRefusal(newLobby) is string speedRefusal)
+            {
+                return (false, speedRefusal);
             }
 
             return (true, "");
@@ -1933,6 +1963,12 @@ namespace TF.EX.Patchs.Scene
                             newLobby.CanNotJoinReason = "MISSING CUSTOM VARIANTS";
                             newLobby.CanJoin = false;
                         }
+                    }
+
+                    if (newLobby.CanJoin && !newLobby.InGame && !newLobby.IsSeriesInProgress && GameLogicSpeedRefusal(newLobby) is string speedRefusal)
+                    {
+                        newLobby.CanNotJoinReason = speedRefusal;
+                        newLobby.CanJoin = false;
                     }
 
                     Action onClick = () =>
