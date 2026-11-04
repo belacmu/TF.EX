@@ -280,8 +280,7 @@ namespace TF.EX.Domain.Services
                     RoomId = roomId,
                     Name = NetplayPreferences.Name,
                     IsPlayer = currentAction == WSAction.JoinLobby,
-                    LocalPlayers = _inputService.GetLocalPlayerCount(),
-                    GameLogicSpeed = NetplayPreferences.GameLogicSpeed.ToString()
+                    LocalPlayers = _inputService.GetLocalPlayerCount()
                 }
             };
 
@@ -299,8 +298,7 @@ namespace TF.EX.Domain.Services
                     Code = pendingJoinCode,
                     Name = NetplayPreferences.Name,
                     IsPlayer = pendingJoinAsPlayer,
-                    LocalPlayers = _inputService.GetLocalPlayerCount(),
-                    GameLogicSpeed = NetplayPreferences.GameLogicSpeed.ToString()
+                    LocalPlayers = _inputService.GetLocalPlayerCount()
                 }
             };
 
@@ -1426,8 +1424,7 @@ namespace TF.EX.Domain.Services
                 || lobby.MaxPlayers != previous.MaxPlayers
                 || lobby.GameData.MatchLength != previous.GameData.MatchLength
                 || lobby.GameData.Mode != previous.GameData.Mode
-                || lobby.GameData.BestOf != previous.GameData.BestOf
-                || lobby.TickRate != previous.TickRate;
+                || lobby.GameData.BestOf != previous.GameData.BestOf;
 
             if (!anyChange)
             {
@@ -1486,11 +1483,6 @@ namespace TF.EX.Domain.Services
             if (lobby.GameData.BestOf != previous.GameData.BestOf)
             {
                 LobbyUpdateFeed.Push(lobby.GameData.BestOf > 0 ? $"SERIES BEST OF {lobby.GameData.BestOf}" : "SERIES OFF", null, NeutralTint);
-            }
-
-            if (lobby.TickRate != previous.TickRate)
-            {
-                LobbyUpdateFeed.Push($"NOW {lobby.TickRate} HZ", null, LobbyPanel.SpeedColor(lobby.TickRate));
             }
         }
 
