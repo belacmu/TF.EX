@@ -20,7 +20,7 @@ namespace TF.EX.Domain.Models
 
         public const int MAX_PLAYERS = 4;
 
-        public const int WIDE_MAX_PLAYERS = 4;
+        public const int WIDE_MAX_PLAYERS = 8;
 
         public const int MAX_DEVICES = 4;
 
