@@ -617,8 +617,16 @@ namespace TF.EX.Patchs.Entity.MenuItem
             rollcallElement.Set("altButton", alt);
             rollcallElement.Set("altBezier", new Bezier(new Vector2(30 - alt.Width / 2, 80f), new Vector2(-30 + alt.Width / 2, 80f), new Vector2(0f, 120f)));
 
-            controlIcon.SwapSubtexture(TFGame.MenuAtlas[$"controls/xb360/player{playerIndex + 1}"]);
-            controlIcon.CenterOrigin();
+            var seatIcon = $"controls/xb360/player{playerIndex + 1}";
+            var hasSeatIcon = TFGame.MenuAtlas.Contains(seatIcon);
+
+            if (hasSeatIcon)
+            {
+                controlIcon.SwapSubtexture(TFGame.MenuAtlas[seatIcon]);
+                controlIcon.CenterOrigin();
+            }
+
+            controlIcon.Color = hasSeatIcon ? Color.White : Color.Transparent;
 
             rollcallElement.Set("controlIcon", controlIcon);
         }

@@ -42,7 +42,7 @@ namespace TF.State.Patchs.RoundLogic
                 xMLPositions.AddRange(spawnB);
             }
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < TFGame.PlayerInputs.Length; i++)
             {
                 if (TFGame.PlayerInputs[i] != null && xMLPositions.Count > i)
                 {
