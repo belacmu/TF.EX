@@ -303,7 +303,7 @@ namespace TF.EX.Core.RoundLogic
 
             var reachable = base.Session.GetHighestScore() - (base.Session.CurrentLevel.LivingPlayers - 1);
 
-            for (int i = 0; i < 4; i++)
+            for (int i = 0; i < TFGame.Players.Length; i++)
             {
                 if (!TFGame.Players[i] || i == playerIndex)
                 {

@@ -12,6 +12,9 @@ namespace TF.EX.Domain.CustomComponent
         private const float PANEL_Y = 150f;
         private const float HINTS_RIGHT_X = 316f;
         private const float SLOT_SPACING = 28f;
+        private const int SLOTS_PER_COLUMN = 3; //More local players (a wide lobby) go in further columns
+        private const float PLAYER_COLUMN_SPACING = 44f;
+        private const float HINT_COLUMN_SPACING = 84f;
         private const float LABEL_OFFSET = 12f;
         private const float ICON_OFFSET = 12f;
         private const float HINT_LINE_OFFSET = 6f;
@@ -88,7 +91,7 @@ namespace TF.EX.Domain.CustomComponent
                 return;
             }
 
-            if (inputService.GetLocalPlayerCount() < Constants.MAX_LOCAL_PLAYERS)
+            if (inputService.GetLocalPlayerCount() < Constants.LobbyMaxLocalPlayers)
             {
                 var joining = inputService.GetJoinableDevices().FirstOrDefault(input => input.MenuStart);
 
@@ -117,51 +120,50 @@ namespace TF.EX.Domain.CustomComponent
 
         private void RenderPlayers(PlayerInput owner, IReadOnlyList<PlayerInput> guests)
         {
-            var y = Position.Y;
-
-            DrawPlayer(1, owner?.Icon, Color.White, y);
+            DrawPlayer(1, owner?.Icon, Color.White);
 
             for (int i = 0; i < guests.Count; i++)
             {
-                y += SLOT_SPACING;
-                DrawPlayer(i + 2, guests[i].Icon, GuestColor, y);
+                DrawPlayer(i + 2, guests[i].Icon, GuestColor);
             }
         }
 
-        private void DrawPlayer(int number, Subtexture icon, Color color, float y)
+        private float SlotY(int number) => Position.Y + (number - 1) % SLOTS_PER_COLUMN * SLOT_SPACING;
+
+        private static int SlotColumn(int number) => (number - 1) / SLOTS_PER_COLUMN;
+
+        private void DrawPlayer(int number, Subtexture icon, Color color)
         {
-            Draw.OutlineTextCentered(TFGame.Font, $"P{number}", new Vector2(Position.X - LABEL_OFFSET, y), color * playersAlpha, Color.Black * playersAlpha);
+            var x = Position.X + SlotColumn(number) * PLAYER_COLUMN_SPACING;
+            var y = SlotY(number);
+            Draw.OutlineTextCentered(TFGame.Font, $"P{number}", new Vector2(x - LABEL_OFFSET, y), color * playersAlpha, Color.Black * playersAlpha);
 
             if (icon != null)
             {
-                Draw.TextureCentered(icon, new Vector2(Position.X + ICON_OFFSET, y), Color.White * playersAlpha);
+                Draw.TextureCentered(icon, new Vector2(x + ICON_OFFSET, y), Color.White * playersAlpha);
             }
         }
 
         private void RenderHints(List<PlayerInput> joinable, IReadOnlyList<PlayerInput> guests)
         {
-            var y = Position.Y;
-
             if (joinable.Count > 0)
             {
-                DrawHint("P1", DistinctTextures(joinable.Select(input => input.Alt2Icon)), SWAP_HINT, Color.Gray, y);
+                DrawHint(1, DistinctTextures(joinable.Select(input => input.Alt2Icon)), SWAP_HINT, Color.Gray);
             }
 
-            for (int seat = 2; seat <= Constants.MAX_LOCAL_PLAYERS; seat++)
+            for (int seat = 2; seat <= Constants.LobbyMaxLocalPlayers; seat++)
             {
-                y += SLOT_SPACING;
-
                 var guestIndex = seat - 2;
 
                 if (guestIndex < guests.Count)
                 {
-                    DrawHint($"P{seat}", [guests[guestIndex].BackIcon], QUIT_HINT, GuestColor, y);
+                    DrawHint(seat, [guests[guestIndex].BackIcon], QUIT_HINT, GuestColor);
                     continue;
                 }
 
                 if (guestIndex == guests.Count && joinable.Count > 0)
                 {
-                    DrawHint($"P{seat}", DistinctTextures(joinable.Select(input => input.StartIcon)), JOIN_HINT, Color.Gray, y);
+                    DrawHint(seat, DistinctTextures(joinable.Select(input => input.StartIcon)), JOIN_HINT, Color.Gray);
                 }
             }
         }
@@ -171,13 +173,15 @@ namespace TF.EX.Domain.CustomComponent
             return [.. icons.Where(icon => icon != null).Distinct()];
         }
 
-        private void DrawHint(string label, IReadOnlyList<Subtexture> icons, string action, Color color, float y)
+        private void DrawHint(int number, IReadOnlyList<Subtexture> icons, string action, Color color)
         {
-            var text = $"{label} {action}";
+            var rightX = HINTS_RIGHT_X - SlotColumn(number) * HINT_COLUMN_SPACING;
+            var y = SlotY(number);
+            var text = $"P{number} {action}";
             var textWidth = TFGame.Font.MeasureString(text).X;
-            Draw.OutlineTextCentered(TFGame.Font, text, new Vector2(HINTS_RIGHT_X - textWidth / 2f, y - HINT_LINE_OFFSET), color * hintsAlpha, Color.Black * hintsAlpha);
+            Draw.OutlineTextCentered(TFGame.Font, text, new Vector2(rightX - textWidth / 2f, y - HINT_LINE_OFFSET), color * hintsAlpha, Color.Black * hintsAlpha);
 
-            var x = HINTS_RIGHT_X - icons.Sum(icon => icon.Width + GAP) + GAP;
+            var x = rightX - icons.Sum(icon => icon.Width + GAP) + GAP;
 
             foreach (var icon in icons)
             {

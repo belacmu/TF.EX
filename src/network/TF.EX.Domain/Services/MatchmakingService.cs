@@ -1613,7 +1613,7 @@ namespace TF.EX.Domain.Services
                 return;
             }
 
-            for (int seat = 0; seat < 4; seat++)
+            for (int seat = 0; seat < TFGame.Players.Length; seat++)
             {
                 var player = ownLobby.SessionPlayers.FirstOrDefault(entry => entry.Seat == seat);
 

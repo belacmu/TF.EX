@@ -447,7 +447,7 @@ namespace TF.Replay.Domain
                 return [];
             }
 
-            var teams = new int[4];
+            var teams = new int[TFGame.Players.Length];
 
             for (int seat = 0; seat < teams.Length; seat++)
             {
