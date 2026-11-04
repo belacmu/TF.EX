@@ -93,7 +93,7 @@ namespace TF.EX.Domain.Services.TF
             var guests = context.GetGuestInputs();
 
             if (input == null
-                || 1 + guests.Count >= Constants.MAX_LOCAL_PLAYERS
+                || 1 + guests.Count >= Constants.LobbyMaxLocalPlayers
                 || IsSameDevice(input, context.GetLocalInput())
                 || guests.Any(guest => IsSameDevice(guest, input)))
             {

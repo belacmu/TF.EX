@@ -57,7 +57,7 @@ namespace TF.EX.Domain.Context
 
         public GameContext()
         {
-            CurrentInputs = new AttributeManager<Input>(EmptyInput, Constants.MAX_PLAYERS);
+            CurrentInputs = new AttributeManager<Input>(EmptyInput, Constants.MAX_SEATS);
         }
 
         private Input EmptyInput() { return new Input(); }

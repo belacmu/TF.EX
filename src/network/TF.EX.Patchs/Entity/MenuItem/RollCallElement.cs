@@ -617,8 +617,12 @@ namespace TF.EX.Patchs.Entity.MenuItem
             rollcallElement.Set("altButton", alt);
             rollcallElement.Set("altBezier", new Bezier(new Vector2(30 - alt.Width / 2, 80f), new Vector2(-30 + alt.Width / 2, 80f), new Vector2(0f, 120f)));
 
-            controlIcon.SwapSubtexture(TFGame.MenuAtlas[$"controls/xb360/player{playerIndex + 1}"]);
-            controlIcon.CenterOrigin();
+            var seatIcon = $"controls/xb360/player{playerIndex + 1}";
+            if (TFGame.MenuAtlas.Contains(seatIcon)) //The game's art has players 1-4: a seat past them (WiderSet's) keeps its own icon
+            {
+                controlIcon.SwapSubtexture(TFGame.MenuAtlas[seatIcon]);
+                controlIcon.CenterOrigin();
+            }
 
             rollcallElement.Set("controlIcon", controlIcon);
         }

@@ -1,3 +1,5 @@
+using TowerFall;
+
 namespace TF.EX.Domain.Models
 {
     public static class Constants
@@ -16,9 +18,13 @@ namespace TF.EX.Domain.Models
 
         public const int MAX_SEATS = 8;
 
-        public const int MAX_PLAYERS = 4; //A lobby's most players
+        public const int MAX_PLAYERS = 4; //A standard lobby's most players
 
-        public const int MAX_LOCAL_PLAYERS = MAX_PLAYERS - 1; //One device's most players: at least one seat for someone else
+        //A lobby's most players: MAX_PLAYERS, or in WiderSet's wide mode the game's seats (TFGame.Players.Length)
+        public static int LobbyMaxPlayers => ServiceCollections.ResolveWiderSetModApi()?.IsWide == true ? TFGame.Players.Length : MAX_PLAYERS;
+
+        //One device's most players: at least one seat for someone else
+        public static int LobbyMaxLocalPlayers => LobbyMaxPlayers - 1;
 
         public static readonly IEnumerable<string> NETPLAY_SAFE_MAP =  //Not all map are supported in netplay right now... //TODO: it actually is, remove this next time...One day lol
         [
