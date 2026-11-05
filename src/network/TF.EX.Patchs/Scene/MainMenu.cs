@@ -2042,6 +2042,7 @@ namespace TF.EX.Patchs.Scene
                 Data = new Dictionary<string, string>
                 {
                     { "IsWide", widerSetModApi.IsWide.ToString() },
+                    { "Seats", TF.EX.Domain.Models.Constants.LobbyMaxPlayers.ToString() },
                     { Domain.Models.WebSocket.CustomMod.VersionKey, ServiceCollections.ResolveModCollections()?.GetVersion(WiderSetModApiData.Name) ?? "" }
                 }
             });

@@ -12,6 +12,8 @@ namespace TF.EX.Domain.CustomComponent
         private const float PANEL_Y = 150f;
         private const float HINTS_RIGHT_X = 316f;
         private const float SLOT_SPACING = 28f;
+        private const int SLOTS_PER_COLUMN = 4;
+        private const float COLUMN_SPACING = 44f;
         private const float LABEL_OFFSET = 12f;
         private const float ICON_OFFSET = 12f;
         private const float HINT_LINE_OFFSET = 6f;
@@ -88,7 +90,7 @@ namespace TF.EX.Domain.CustomComponent
                 return;
             }
 
-            if (inputService.GetLocalPlayerCount() < Constants.MAX_LOCAL_PLAYERS)
+            if (inputService.GetLocalPlayerCount() < Constants.LobbyMaxLocalPlayers)
             {
                 var joining = inputService.GetJoinableDevices().FirstOrDefault(input => input.MenuStart);
 
@@ -117,24 +119,25 @@ namespace TF.EX.Domain.CustomComponent
 
         private void RenderPlayers(PlayerInput owner, IReadOnlyList<PlayerInput> guests)
         {
-            var y = Position.Y;
+            var columns = (guests.Count + SLOTS_PER_COLUMN) / SLOTS_PER_COLUMN;
 
-            DrawPlayer(1, owner?.Icon, Color.White, y);
+            DrawPlayer(1, owner?.Icon, Color.White, columns);
 
             for (int i = 0; i < guests.Count; i++)
             {
-                y += SLOT_SPACING;
-                DrawPlayer(i + 2, guests[i].Icon, GuestColor, y);
+                DrawPlayer(i + 2, guests[i].Icon, GuestColor, columns);
             }
         }
 
-        private void DrawPlayer(int number, Subtexture icon, Color color, float y)
+        private void DrawPlayer(int number, Subtexture icon, Color color, int columns)
         {
-            Draw.OutlineTextCentered(TFGame.Font, $"P{number}", new Vector2(Position.X - LABEL_OFFSET, y), color * playersAlpha, Color.Black * playersAlpha);
+            var x = Position.X - (columns - 1 - (number - 1) / SLOTS_PER_COLUMN) * COLUMN_SPACING;
+            var y = Position.Y + (number - 1) % SLOTS_PER_COLUMN * SLOT_SPACING;
+            Draw.OutlineTextCentered(TFGame.Font, $"P{number}", new Vector2(x - LABEL_OFFSET, y), color * playersAlpha, Color.Black * playersAlpha);
 
             if (icon != null)
             {
-                Draw.TextureCentered(icon, new Vector2(Position.X + ICON_OFFSET, y), Color.White * playersAlpha);
+                Draw.TextureCentered(icon, new Vector2(x + ICON_OFFSET, y), Color.White * playersAlpha);
             }
         }
 
@@ -147,22 +150,24 @@ namespace TF.EX.Domain.CustomComponent
                 DrawHint("P1", DistinctTextures(joinable.Select(input => input.Alt2Icon)), SWAP_HINT, Color.Gray, y);
             }
 
-            for (int seat = 2; seat <= Constants.MAX_LOCAL_PLAYERS; seat++)
+            if (guests.Count > 2)
             {
                 y += SLOT_SPACING;
-
-                var guestIndex = seat - 2;
-
-                if (guestIndex < guests.Count)
+                DrawHint($"P2-P{guests.Count + 1}", DistinctTextures(guests.Select(guest => guest.BackIcon)), QUIT_HINT, GuestColor, y);
+            }
+            else
+            {
+                for (int i = 0; i < guests.Count; i++)
                 {
-                    DrawHint($"P{seat}", [guests[guestIndex].BackIcon], QUIT_HINT, GuestColor, y);
-                    continue;
+                    y += SLOT_SPACING;
+                    DrawHint($"P{i + 2}", [guests[i].BackIcon], QUIT_HINT, GuestColor, y);
                 }
+            }
 
-                if (guestIndex == guests.Count && joinable.Count > 0)
-                {
-                    DrawHint($"P{seat}", DistinctTextures(joinable.Select(input => input.StartIcon)), JOIN_HINT, Color.Gray, y);
-                }
+            if (guests.Count + 2 <= Constants.LobbyMaxLocalPlayers && joinable.Count > 0)
+            {
+                y += SLOT_SPACING;
+                DrawHint($"P{guests.Count + 2}", DistinctTextures(joinable.Select(input => input.StartIcon)), JOIN_HINT, Color.Gray, y);
             }
         }
 
