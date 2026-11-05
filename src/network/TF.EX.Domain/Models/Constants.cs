@@ -22,6 +22,8 @@ namespace TF.EX.Domain.Models
 
         public const int WIDE_MAX_PLAYERS = 4;
 
+        public const int MAX_DEVICES = 4;
+
         public static int LobbyMaxPlayers => ServiceCollections.ResolveWiderSetModApi()?.IsWide == true ? Math.Min(WIDE_MAX_PLAYERS, TFGame.Players.Length) : MAX_PLAYERS;
 
         public static int LobbyMaxLocalPlayers => LobbyMaxPlayers - 1;

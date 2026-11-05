@@ -96,7 +96,9 @@ namespace TF.EX.Domain.CustomComponent
         {
             var detail = ownLobby.IsSeriesLobby
                 ? $"{ownLobby.MaxPlayers} ARCHERS - {LobbyVersusSeriesButton.ShapeName(ownLobby)}"
-                : $"{ownLobby.MaxPlayers} ARCHERS";
+                : ownLobby.MaxPlayers > Models.Constants.MAX_DEVICES
+                    ? $"{ownLobby.MaxPlayers} ARCHERS - MAX {Models.Constants.MAX_DEVICES} DEVICES"
+                    : $"{ownLobby.MaxPlayers} ARCHERS";
 
             Draw.OutlineTextCentered(TFGame.Font, "LOBBY SIZE", Position + new Vector2(0f, -6f), base.DrawColor, 2f);
             Draw.OutlineTextCentered(TFGame.Font, detail, Position + new Vector2(0f, 6f), base.DrawColor, 1f);

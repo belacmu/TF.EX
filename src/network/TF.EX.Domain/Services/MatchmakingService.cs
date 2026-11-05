@@ -1259,6 +1259,7 @@ namespace TF.EX.Domain.Services
             NotifySeriesAbort(lobby, previous);
             NotifyConnectionUpdate(lobby, previous);
             PublishSettingsChanges(lobby, previous);
+            PublishDeviceLimit(lobby, previous);
             UnreadyOwnRollcall(lobby, previous);
 
             var seatChanged = _inputService.EnsureLocalControllerSeats();
@@ -1483,6 +1484,24 @@ namespace TF.EX.Domain.Services
             {
                 LobbyUpdateFeed.Push(lobby.GameData.BestOf > 0 ? $"SERIES BEST OF {lobby.GameData.BestOf}" : "SERIES OFF", null, NeutralTint);
             }
+        }
+
+        private void PublishDeviceLimit(Lobby lobby, Lobby previous)
+        {
+            if (previous == null || previous.RoomId != lobby.RoomId || lobby.InGame || lobby.Players.Count >= lobby.MaxPlayers)
+            {
+                return;
+            }
+
+            if (DeviceCount(lobby) >= Constants.MAX_DEVICES && DeviceCount(previous) < Constants.MAX_DEVICES)
+            {
+                LobbyUpdateFeed.Push($"{Constants.MAX_DEVICES} DEVICES - MORE ARCHERS JOIN ON THESE DEVICES", null, NeutralTint);
+            }
+        }
+
+        private static int DeviceCount(Lobby lobby)
+        {
+            return lobby.Players.Select(player => player.RoomPeerId).Distinct().Count();
         }
 
         private static string ModeName(int mode)
