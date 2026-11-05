@@ -43,7 +43,7 @@ namespace TF.Replay.Domain.Extensions
 
                 if (values == null)
                 {
-                    values = new bool[4];
+                    values = new bool[TFGame.Players.Length];
                     dynVariant.Set("playerValues", values);
                 }
 
