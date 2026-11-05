@@ -1495,7 +1495,7 @@ namespace TF.EX.Domain.Services
 
             if (DeviceCount(lobby) >= Constants.MAX_DEVICES && DeviceCount(previous) < Constants.MAX_DEVICES)
             {
-                LobbyUpdateFeed.Push($"{Constants.MAX_DEVICES} DEVICES - MORE ARCHERS JOIN ON THESE DEVICES", null, NeutralTint);
+                LobbyUpdateFeed.Push("MAX DEVICES REACHED", null, NeutralTint);
             }
         }
 
